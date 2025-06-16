@@ -1,0 +1,54 @@
+% Generic LaTeX Template for User Guide PDF
+\documentclass[12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{titlesec}
+\usepackage{listings}
+
+% Page layout
+\geometry{a4paper, margin=1in}
+
+% Title metadata
+\title{$title$}
+\author{$author$}
+\date{$date$}
+
+% Section formatting
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Configure hyperref to remove colored boxes around links
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    citecolor=black
+}
+
+% Define \tightlist to avoid errors
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Define \passthrough to avoid errors
+\providecommand{\passthrough}[1]{#1}
+
+% Document
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+\maketitle
+\end{titlepage}
+
+% Table of Contents
+\tableofcontents
+\newpage
+
+% Content
+$body$
+
+\end{document}
