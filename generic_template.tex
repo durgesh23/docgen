@@ -1,3 +1,10 @@
+% ###########################################
+% Generic LaTeX Template for User Guide PDF
+% author: durgeshr@synopsys.com
+% date: 16/06/2025
+% version: 1.0
+% Note: Written with the help of CoPilot
+% ##########################################
 % Generic LaTeX Template for User Guide PDF
 \documentclass[12pt]{article}
 
@@ -7,6 +14,7 @@
 \usepackage{hyperref}
 \usepackage{titlesec}
 \usepackage{listings}
+\usepackage{fancyhdr}
 
 % Page layout
 \geometry{a4paper, margin=1in}
@@ -28,6 +36,13 @@
     urlcolor=blue,
     citecolor=black
 }
+
+% Add header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\rightmark}
+\fancyfoot[C]{\thepage}
 
 % Define \tightlist to avoid errors
 \providecommand{\tightlist}{%

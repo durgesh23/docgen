@@ -1,4 +1,5 @@
 echo #!/bin/bash
+
 echo "## Generating PDF documentation for FORD ECG2 VDK User Guide"
 echo "Cleaning pervious generated files..."
 rm -f FORD_ECG2_UserGuide.pdf
@@ -12,6 +13,9 @@ pandoc FORD_ECG2_UserGuide.md -o FORD_ECG2_UserGuide.pdf \
     --number-sections \
     --listings \
     -V title="$title" \
+    -V toc="$toc" \
+    -V toc-depth=2 \
+    -V lang="en" \
     -V author="$author" \
     -V date="June 16, 2025"
 echo "## DONE"
