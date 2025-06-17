@@ -5,6 +5,9 @@
 % version: 1.0
 % Note: Written with the help of CoPilot
 % ##########################################
+
+
+
 % Generic LaTeX Template for User Guide PDF
 \documentclass[12pt]{article}
 
@@ -15,9 +18,13 @@
 \usepackage{titlesec}
 \usepackage{listings}
 \usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{placeins} % Include the placeins package to control figure placement
+\usepackage{xcolor} % For colored text
 
 % Page layout
-\geometry{a4paper, margin=1in}
+\geometry{a4paper, left=0.5in, right=0.5in, top=1in, bottom=1in}
 
 % Title metadata
 \title{$title$}
@@ -25,9 +32,9 @@
 \date{$date$}
 
 % Section formatting
-\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
-\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
-\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{\vspace{1em}}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{\vspace{1em}}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{\vspace{1em}}{}
 
 % Configure hyperref to remove colored boxes around links
 \hypersetup{
@@ -44,6 +51,14 @@
 \fancyhead[R]{\rightmark}
 \fancyfoot[C]{\thepage}
 
+% Ensure all images are scaled to fit within the text width and height
+\setkeys{Gin}{width=0.9\textwidth, height=0.5\textheight, keepaspectratio}
+
+% Update \includegraphics to handle images with captions and scaling
+\let\Oldincludegraphics\includegraphics
+% Ensure all figures are placed exactly where they are defined and scaled appropriately
+\renewcommand{\includegraphics}[2][]{\begin{figure}[H]\centering\Oldincludegraphics[#1]{#2}\ifx\relax#1\relax\else\caption{#1}\fi\end{figure}\FloatBarrier}
+
 % Define \tightlist to avoid errors
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
@@ -51,12 +66,25 @@
 % Define \passthrough to avoid errors
 \providecommand{\passthrough}[1]{#1}
 
+% Add \FloatBarrier before each section to ensure figures are placed correctly
+\let\Oldsection\section
+\renewcommand{\section}{\FloatBarrier\Oldsection}
+
+% Define a custom TODO command for notes/cautions
+\newcommand{\todo}[1]{%
+  \noindent\fcolorbox{red}{yellow!20}{\parbox{0.95\textwidth}{\textbf{\textcolor{red}{TODO:}} \textit{#1}}}\par
+}
+
 % Document
 \begin{document}
 
 % Title Page
 \begin{titlepage}
 \maketitle
+\vspace{2cm}
+\begin{center}
+    \textbf{Revision:} $revision$
+\end{center}
 \end{titlepage}
 
 % Table of Contents
