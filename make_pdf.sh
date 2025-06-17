@@ -2,15 +2,15 @@
 
 # Check if an output type argument is provided
 if [ -z "$1" ]; then
-    echo "Error: No output type specified. Use 'pdf' or 'doc'."
+    echo "Error: No output type specified. Use 'pdf' or 'docx'."
     exit 1
 fi
 
 output_type=$1
 
 # Validate the output type
-if [ "$output_type" != "pdf" ] && [ "$output_type" != "doc" ]; then
-    echo "Error: Invalid output type. Use 'pdf' or 'doc'."
+if [ "$output_type" != "pdf" ] && [ "$output_type" != "docx" ]; then
+    echo "Error: Invalid output type. Use 'pdf' or 'docx'."
     exit 1
 fi
 
@@ -34,11 +34,13 @@ cp generic_template.tex ./build/
 
 # Generate intermediate .tex file for debugging
 echo "## Generating intermediate .tex file"
+# Add the --toc flag to ensure the table of contents is generated
 pandoc ./build/$out_filename.md -o ./build/$out_filename.tex \
     --template=./build/generic_template.tex \
     --pdf-engine=xelatex \
     --number-sections \
     --listings \
+    --toc \
     --verbose 2> ./build/pandoc_conversion.log \
     -V title="$title" \
     -V revision="$revision" \
@@ -87,12 +89,9 @@ if [ "$output_type" == "pdf" ]; then
             done
             echo ""
             echo "## Please address these TODOs before finalizing the PDF."
-        else
-            echo "Generated ${out_filename}.pdf successfully."
-            echo "## DONE"
         fi
     fi   
-elif [ "$output_type" == "doc" ]; then
+elif [ "$output_type" == "docx" ]; then
     echo "## Generating .docx file"
     pandoc FORD_ECG2_UserGuide.md -o FORD_ECG2_UserGuide.docx \
         --template=generic_template.tex \
@@ -104,8 +103,7 @@ elif [ "$output_type" == "doc" ]; then
         -V lang="en" \
         -V author="$author" \
         -V date="June 16, 2025"
-
-    echo "Generated ${title}.docx successfully."
-    echo "## DONE"
 fi
 
+echo "Generated ${out_filename}.${output_type} successfully."
+echo "## DONE"
