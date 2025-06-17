@@ -1,17 +1,43 @@
 #!/bin/bash
 
-# Check if an output type argument is provided
-if [ -z "$1" ]; then
-    echo "Error: No output type specified. Use 'pdf' or 'docx'."
-    exit 1
+# Default values
+input_file=""
+output_type=""
+
+# Parse command-line arguments
+while getopts "i:t:" opt; do
+  case $opt in
+    i) input_file="$OPTARG" ;;
+    t) output_type="$OPTARG" ;;
+    *)
+      echo "Usage: $0 -i <input_markdown_file> -t <output_type (pdf|docx)>"
+      exit 1
+      ;;
+  esac
+done
+
+# Validate input markdown file
+if [ -z "$input_file" ]; then
+  echo "Error: Input markdown file not specified."
+  echo "Usage: $0 -i <input_markdown_file> -t <output_type (pdf|docx)>"
+  exit 1
 fi
 
-output_type=$1
+if [ ! -f "$input_file" ]; then
+  echo "Error: Input file '$input_file' not found."
+  exit 1
+fi
 
-# Validate the output type
+# Validate output type
+if [ -z "$output_type" ]; then
+  echo "Error: Output type not specified."
+  echo "Usage: $0 -i <input_markdown_file> -t <output_type (pdf|docx)>"
+  exit 1
+fi
+
 if [ "$output_type" != "pdf" ] && [ "$output_type" != "docx" ]; then
-    echo "Error: Invalid output type. Use 'pdf' or 'docx'."
-    exit 1
+  echo "Error: Invalid output type. Use 'pdf' or 'docx'."
+  exit 1
 fi
 
 # Common variables
@@ -29,13 +55,13 @@ mkdir -p ./build
 echo "Cleaning previous generated files..."
 
 # Copy necessary files to the build directory
-cp $out_filename.md ./build/
+cp $input_file ./build/
 cp generic_template.tex ./build/
 
 # Generate intermediate .tex file for debugging
 echo "## Generating intermediate .tex file"
 # Add the --toc flag to ensure the table of contents is generated
-pandoc ./build/$out_filename.md -o ./build/$out_filename.tex \
+pandoc ./build/$input_file -o ./build/$out_filename.tex \
     --template=./build/generic_template.tex \
     --pdf-engine=xelatex \
     --number-sections \
