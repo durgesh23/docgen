@@ -146,12 +146,12 @@ The Ford ECG2 VP platform consists of the following components:
 - MCU
     - NXP S32G2 (For further information see `installDir/Documentation/pdf/S32G2/`)
 
-    \todo{Add correct documenation for S32G2 MCU}
+<!-- \todo{ Add correct documenation for S32G2 MCU} -->
 
-\todo{ Add VDK block diagram}
+<!-- \todo{ Add VDK block diagram} -->
 
 # Model Extensions
-\todo {Check if this section is needed here}
+<!-- \todo {Check if this section is needed here} -->
 
 
 # VP Configs
@@ -162,8 +162,8 @@ The skin tests the functionality of the GMAC , verifying Ethernet Reception/Tran
 
 | Software Feature | Description |
 |------------------|-------------|
-| Rxtest           | Tests the transmission of frame from Ethernet IOStubs to GMAC ( ethernet Controller)|
-| Txtest           | Tests the transmission of frame from GMAC ( ethernet Controller) to Ethernet IOstubs |
+| **Rxtest**       | Tests the transmission of frame from Ethernet IOStubs to GMAC (ethernet Controller). |
+| **Txtest**       | Tests the transmission of frame from GMAC (ethernet Controller) to Ethernet IOstubs. |
 
 
 ## TestSW_VR5510
@@ -172,9 +172,11 @@ This skin tests the VR5510 model's registers' access, reset, watchdog functional
 ## TestSW_TJA1044
 The skin tests the functionality of the TJA1044 transceiver in different modes of operation of the model, verifying CAN Reception/Transmission between BCAN and CANIo Stub. TJA1044 CAN bus socket is connected with MCU(BCAN) and CAN device socket is connected with CANIo Stub. Frame reception and transmission has been checked in two modes  (normal and standby) and mode changes is done using STB pin of TJA1044.There are 10 instances of TJA1044 Transceiver present in vECU.
 
-::: {.todo}
-Add detailed explanation for the functionality of the PCA85073A RTC model.
-:::
+<!-- 
+ | Software Feature | Description |
+|------------------|-------------|
+| test_normal_mode | Tests the Tx and Rx from BCAN to CANIOStub |
+| test_standby_mode| Tests the Tx and Rx from BCAn to CANIOStub in standby mode of TJA1044 Transreceiver, changed mode from NORMAL -> STANDBY by setting STB pin HIGH| -->
 
 ## TestSW_PCA85073A
 This skin test the Alarm and Timer functionality for the PCA85073A RTC model.

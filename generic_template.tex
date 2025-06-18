@@ -22,6 +22,42 @@
 \usepackage{float}
 \usepackage{placeins} % Include the placeins package to control figure placement
 \usepackage{xcolor} % For colored text
+\usepackage{booktabs}    % Professional-quality tables
+\usepackage{longtable}   % Tables that span multiple pages
+\usepackage{array}       % Extended column formatting
+\usepackage{multirow}    % Multirow cells
+\usepackage{colortbl}    % Colored cells and rows
+\usepackage{xcolor}      % Colors for tables
+\usepackage{xstring} % For string manipulation
+\usepackage{etoolbox} % For patching commands
+
+% Enforce fixed column widths for tables
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Left-aligned column
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % Center-aligned column
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % Right-aligned column
+
+% Adjust column widths for tables to prevent overfull boxes
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Left-aligned column
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % Center-aligned column
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % Right-aligned column
+
+% Fix longtable configuration to prevent overfull boxes and missing number errors
+\usepackage{array} % Ensure array package is loaded for column definitions
+\renewcommand{\arraystretch}{1.2} % Adjust row height for better readability
+\setlength{\tabcolsep}{5pt} % Adjust column separation
+
+% Define fixed column widths for longtable
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Left-aligned column
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % Center-aligned column
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % Right-aligned column
+
+% Example usage in longtable:
+% \begin{longtable}{L{0.6\textwidth} L{0.4\textwidth}}
+% \hline
+% Header 1 & Header 2 \\
+% \hline
+% Content 1 & Content 2 \\
+% \end{longtable}
 
 % Page layout
 \geometry{a4paper, left=0.5in, right=0.5in, top=1in, bottom=1in}
@@ -74,6 +110,80 @@
 \newcommand{\todo}[1]{%
   \noindent\fcolorbox{red}{yellow!20}{\parbox{0.95\textwidth}{\textbf{\textcolor{red}{TODO:}} \textit{#1}}}\par
 }
+
+% Table row coloring (optional, for better readability)
+\definecolor{tableRowColor}{gray}{0.95}
+\newcommand{\rowcol}{\rowcolor{tableRowColor}}
+
+% Reduce space before/after longtables
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{0pt}
+
+% Ensure tables span multiple pages gracefully
+\setlength{\extrarowheight}{1pt} % Add extra height to table rows for better readability
+
+% Fix for minipage issues in tables
+% Ensure proper handling of table headers and content
+\renewcommand{\arraystretch}{1.2} % Adjust row height for better readability
+
+% Define a custom table header style to avoid minipage issues
+\newcommand{\tableheader}[1]{\textbf{#1}}
+
+% Custom longtable configuration to handle column widths and prevent overfull boxes
+\newcommand{\CustomLongTable}[2]{%
+  \begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.6\textwidth}>{\raggedright\arraybackslash}p{0.4\textwidth}@{}}
+    \toprule
+    \textbf{#1} & \textbf{#2} \\
+    \midrule
+    \endhead
+    \bottomrule
+    \endlastfoot
+}
+
+% Add support for vertical lines in longtable for Pandoc-generated LaTeX
+% Patch the \LT@array macro to modify column specifications
+\makeatletter
+\patchcmd{\LT@array}{\@mkpream{#2}}{
+  \StrGobbleLeft{#2}{2}[	empPream] % Remove @{} from the start
+  \StrGobbleRight{\tempPream}{2}[	empPream] % Remove @{} from the end
+  \StrSubstitute{\tempPream}{l}{|l}[	empPream] % Substitute l with |l
+  \StrSubstitute{\tempPream}{c}{|c}[	empPream] % Substitute c with |c
+  \StrSubstitute{\tempPream}{r}{|r}[	empPream] % Substitute r with |r
+  \edef\finalpream{@{}\tempPream|@{}} % Add | at the end and surround by @{}
+  \@mkpream{\finalpream} % Pass the final preamble to \@mkpream
+}{}{}
+\makeatother
+
+% Reduce gaps around rules for better alignment with vertical lines
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+
+% Ensure \patchcmd commands are properly scoped
+\makeatletter
+% Redefine \LT@tabularcr to add \hline after every row
+% Ensure \LT@tabularcr exists before patching
+\@ifundefined{LT@tabularcr}{}{%
+  \patchcmd{\LT@tabularcr}{\cr}{\cr\hline}{}{}
+}
+\makeatother
+
+% Redefine \midrule to do nothing (as \hline is added after every row)
+\renewcommand{\midrule}{}
+\makeatother
+
+% Optional: Adjust vertical margins of cells
+\renewcommand{\arraystretch}{1.3}
+\makeatother
+
+% Update column width calculation to use \dimexpr for proper evaluation
+\newcommand{\real}[1]{\dimexpr#1\relax} % Ensure \real uses \dimexpr for dimension calculations
+
+% Replace problematic column width calculation with valid LaTeX-compatible syntax
+% Example: Replace (column width - 2\tabcolsep) * \real{0.4194} with:
+\newcommand{\calculateWidth}[2]{\dimexpr(#1 - 2\tabcolsep) * #2\relax}
+
+% Optional: Use \sloppy to allow more flexible line breaking
+\sloppy
 
 % Document
 \begin{document}
