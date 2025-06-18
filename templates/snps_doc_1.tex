@@ -1,0 +1,191 @@
+% ###########################################
+% Template for Synopsys Documentation based on UCEH_13556310 UserGuide
+% Created: $date$
+% Version: 2.0
+% ###########################################
+
+\documentclass[11pt,a4paper]{report}
+
+% Basic packages - order matters!
+\usepackage{ifxetex}
+\ifxetex
+  \usepackage{fontspec}
+  \defaultfontfeatures{Ligatures=TeX}
+  \setmainfont{DejaVu Serif}
+  \setsansfont{DejaVu Sans}
+  \setmonofont{DejaVu Sans Mono}
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+\fi
+
+% Core packages
+\usepackage{xcolor}
+%\usepackage{colortbl} % Commented out table handling
+\usepackage{graphicx}
+\usepackage{geometry}
+%\usepackage{array} % Commented out table handling
+%\usepackage{longtable} % Commented out table handling
+%\usepackage{booktabs} % Commented out table handling
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{makeidx}
+\usepackage{hyperref}
+
+% Define colors
+\definecolor{GoldLt}{rgb}{1.0,0.9,0.6}
+\definecolor{SynopsysBlue}{RGB}{0,43,127}
+\definecolor{SynopsisLightBlue}{RGB}{0,114,206}
+
+% Common Synopsys commands used in the UserGuide
+%\newcommand{\rowcolorLightgray}{\rowcolor[gray]{0.9}} % Commented out table handling
+\newcommand{\real}[1]{#1}
+\newcommand{\note}[1]{\textbf{Note:} #1}
+\newcommand{\msg}[1]{\textbf{#1}}
+\newcommand{\ProductName}[1]{\texttt{#1}}
+\newcommand{\ifplastex}{}
+\newcommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Set up the page geometry
+\geometry{
+  a4paper,
+  left=30mm,
+  right=30mm,
+  top=30mm,
+  bottom=30mm
+}
+
+% Configure hyperref
+\hypersetup{
+  colorlinks=true,
+  linkcolor=SynopsysBlue,
+  citecolor=SynopsysBlue,
+  urlcolor=SynopsysBlue,
+  breaklinks=true,
+  pdfauthor={$author$},
+  pdftitle={$title$},
+  pdfsubject={$title$},
+  pdfkeywords={Synopsys, Documentation, $title$}
+}
+
+% Setup title formatting
+\titleformat{\chapter}
+  {\normalfont\Large\bfseries\color{SynopsysBlue}}
+  {\thechapter}{1em}{}[\titlerule]
+\titleformat{\section}
+  {\normalfont\large\bfseries\color{SynopsysBlue}}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\color{SynopsysBlue}}
+  {\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{SynopsysBlue}}
+  {\thesubsubsection}{1em}{}
+
+% Title spacing
+\titlespacing*{\chapter}{0pt}{50pt}{40pt}
+\titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+\titlespacing*{\subsubsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Table formatting - commented out
+%\renewcommand{\arraystretch}{1.3}
+%\setlength{\tabcolsep}{8pt}
+
+% Custom header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[L]{\textit{$title$}}
+\fancyhead[R]{\textit{Rev $revision$}}
+\fancyfoot[C]{\thepage}
+\fancyfoot[L]{\textit{Synopsys Confidential}}
+\fancyfoot[R]{\textit{$date$}}
+
+% For code listings
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  backgroundcolor=\color[gray]{0.95},
+  keywordstyle=\color{blue},
+  commentstyle=\color{green!50!black},
+  stringstyle=\color{red},
+  tabsize=4
+}
+
+% Define column types for tables - commented out
+%\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+%\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+%\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+
+% Set up the index
+\makeindex
+
+% Title metadata
+\title{$title$}
+\author{$author$}
+\date{$date$}
+
+% Begin document
+\begin{document}
+
+$if(titlepage)$
+% Custom title page
+\begin{titlepage}
+  \centering
+  
+  \vspace*{1cm}
+  
+  \includegraphics[width=0.5\textwidth]{$if(logo)$$logo$$else$images/synopsys_logo.jpg$endif$}
+  
+  \vspace{1.5cm}
+  
+  {\Huge\bfseries\color{SynopsysBlue} $title$\par}
+  $if(subtitle)$
+  \vspace{1cm}
+  {\Large\color{SynopsisLightBlue} $subtitle$\par}
+  $endif$
+  
+  \vspace{2cm}
+  
+  {\Large\bfseries Revision $revision$\par}
+  
+  \vfill
+  
+  {\large\bfseries $author$\par}
+  
+  {\large $date$\par}
+  
+  \vspace{1cm}
+  
+  {\large\itshape Synopsys Confidential\par}
+  
+\end{titlepage}
+$else$
+  \maketitle
+$endif$
+
+$if(toc)$
+\tableofcontents
+\clearpage
+$endif$
+
+$body$
+
+$if(bibliography)$
+\begin{thebibliography}{9}
+$for(bibliography_entries)$
+\bibitem{$bibliography_entries.key$} $bibliography_entries.text$
+$endfor$
+\end{thebibliography}
+$endif$
+
+\end{document}
