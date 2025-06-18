@@ -1,30 +1,72 @@
--- Lua filter to remove minipage environments from table headers
--- Add detailed logging to debug the Lua filter
+-- Simplest possible Lua filter to fix \real command in tables
+
+-- Define a replacement function for \real commands
+function replace_real(text)
+  -- First replace the specific pattern that's causing issues
+  local result = text:gsub("(\\columnwidth %- 2\\tabcolsep) %* \\real{([0-9.]+)}", 
+                          "\\dimexpr\\columnwidth * %2\\relax")
+  
+  -- Then replace any remaining \real commands
+  result = result:gsub("\\real{([0-9.]+)}", "%1")
+  
+  return result
+end
+
+-- Process any Raw LaTeX blocks
+function RawBlock(block)
+  if block.format == "latex" then
+    block.text = replace_real(block.text)
+  end
+  return block
+end
+
+-- Process tables
 function Table(el)
-  io.stderr:write("Processing a table element\n")
-  io.stderr:write("Table element structure: " .. pandoc.utils.stringify(el) .. "\n")
-  if el.rows then  -- Ensure el.rows is not nil
-    for i, row in ipairs(el.rows) do
-      for j, cell in ipairs(row) do
-        for k, block in ipairs(cell) do
-          if block.t == "RawBlock" then
-            io.stderr:write("Found RawBlock: " .. block.text .. "\n")
-            -- Replace minipage environments
-            block.text = block.text:gsub("\\begin%%{minipage%%}.-\\end%%{minipage%%}", "")
-            -- Replace problematic column width expressions
-            block.text = block.text:gsub("\\%((\\columnwidth %- 2\\\\tabcolsep\\) %* \\real%{(.-)}\\)", "\\calculateWidth{\\columnwidth}{%1}")
-            io.stderr:write("Updated RawBlock: " .. block.text .. "\n")
-            io.stderr:write("Processed block text: " .. block.text .. "\n")
-            -- Add logging to confirm if the replacement was successful
-            if block.text:find("\\calculateWidth") then
-              io.stderr:write("Replacement successful: " .. block.text .. "\n")
-            else
-              io.stderr:write("Replacement failed for block: " .. block.text .. "\n")
-            end
-          end
-        end
-      end
+  return el
+end
+
+-- Process any Raw LaTeX inline elements
+function RawInline(inline)
+  if inline.format == "latex" then
+    inline.text = replace_real(inline.text)
+  end
+  return inline
+end
+  
+  -- Double-check if there are still \real commands left
+  if text:find("\\real") then
+    io.stderr:write("WARNING: \\real command still present in text!\n")
+    -- Extreme measure - do a complete direct replacement of the specific pattern from debug logs
+    text = text:gsub("%(\\columnwidth %- 2\\tabcolsep%) %* \\real{([0-9%.]+)}", "\\dimexpr\\columnwidth * %1\\relax")
+  end
+  
+  io.stderr:write("Modified text (excerpt): " .. text:sub(1, 50) .. "...\n")
+  return text
+end
+
+-- Process any raw LaTeX blocks
+function RawBlock(block)
+  if block.format == "latex" then
+    block.text = fix_latex_text(block.text)
+  end
+  return block
+end
+
+-- Process tables
+function Table(el)
+  io.stderr:write("Processing table\n")
+  return el
+end
+
+-- Final document-wide processing
+function Pandoc(doc)
+  -- Process all blocks to ensure we catch everything
+  for i, block in ipairs(doc.blocks) do
+    if block.t == "RawBlock" and block.format == "latex" then
+      block.text = fix_latex_text(block.text)
     end
   end
-  return el
+  
+  io.stderr:write("Completed document processing\n")
+  return doc
 end

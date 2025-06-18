@@ -11,6 +11,9 @@
 % Generic LaTeX Template for User Guide PDF
 \documentclass[12pt]{article}
 
+% Define \real command at very beginning to prevent "missing control sequence" errors
+\def\real#1{#1}
+
 % Packages
 \usepackage[utf8]{inputenc}
 \usepackage{geometry}
@@ -31,12 +34,7 @@
 \usepackage{xstring} % For string manipulation
 \usepackage{etoolbox} % For patching commands
 
-% Enforce fixed column widths for tables
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Left-aligned column
-\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % Center-aligned column
-\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % Right-aligned column
-
-% Adjust column widths for tables to prevent overfull boxes
+% Define column types for tables - single definition to avoid duplicates
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Left-aligned column
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % Center-aligned column
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % Right-aligned column
@@ -46,10 +44,11 @@
 \renewcommand{\arraystretch}{1.2} % Adjust row height for better readability
 \setlength{\tabcolsep}{5pt} % Adjust column separation
 
-% Define fixed column widths for longtable
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Left-aligned column
-\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % Center-aligned column
-\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % Right-aligned column
+% Define a fix for the \real command used in table column widths
+\providecommand{\real}[1]{#1}
+
+% Handle the \real command that's causing issues
+\providecommand{\real}[1]{#1}
 
 % Example usage in longtable:
 % \begin{longtable}{L{0.6\textwidth} L{0.4\textwidth}}
@@ -175,12 +174,20 @@
 \renewcommand{\arraystretch}{1.3}
 \makeatother
 
-% Update column width calculation to use \dimexpr for proper evaluation
-\newcommand{\real}[1]{\dimexpr#1\relax} % Ensure \real uses \dimexpr for dimension calculations
+% Better handling of column width calculations
+% Ensure \real is defined early and consistently to prevent missing control sequence errors
+\providecommand{\real}[1]{#1} % Define \real to simply return its argument
 
-% Replace problematic column width calculation with valid LaTeX-compatible syntax
-% Example: Replace (column width - 2\tabcolsep) * \real{0.4194} with:
-\newcommand{\calculateWidth}[2]{\dimexpr(#1 - 2\tabcolsep) * #2\relax}
+% Fix for column width calculations in tables
+% This command safely calculates column widths as a fraction of available width
+\newcommand{\calculateWidth}[2]{\dimexpr#1 * #2\relax}
+
+% Simple command for column widths that avoids complex calculations
+\newcommand{\tablecolwidth}[1]{\dimexpr\columnwidth * #1\relax}
+
+% Additional fix for problematic expressions in generated LaTeX
+% This specifically addresses the pattern that causes the error in line 565
+\newcommand{\fixedcolwidth}[1]{\dimexpr\columnwidth * #1\relax}
 
 % Optional: Use \sloppy to allow more flexible line breaking
 \sloppy
