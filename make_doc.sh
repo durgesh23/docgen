@@ -72,11 +72,43 @@ fi
 # Set table of contents
 toc="Table of Contents"
 
+# Function to run the pandoc command
+function run_pandoc() {
+  local output_type=$1
+  local input_file=$2
+  local out_filename=$3
+  local title=$4
+  local revision=$5
+  local toc=$6
+  local author=$7
+  local date=$8
+
+  if [ "$output_type" == "pdf" ]; then
+      pandoc $input_file -o ./build/$out_filename.$output_type \
+        --template=./templates/snps_doc.tex \
+        --metadata title="$title" \
+        --metadata revision="$revision" \
+        --metadata toc="$toc" \
+        --metadata author="$author" \
+        --metadata date="$date" \
+        -V datefontsize="\small" \
+        -V titlepage=true \
+        --pdf-engine=xelatex
+  elif [ "$output_type" == "docx" ]; then
+      pandoc $input_file -o ./build/$out_filename.$output_type \
+        --metadata title="$title" \
+        --metadata revision="$revision" \
+        --metadata toc="$toc" \
+        --metadata author="$author" \
+        --metadata date="$date"
+  fi
+}
+
 # Use current date
 date="$doc_date"
 
 # Create a build directory if it doesn't exist
-rm -f ./build/*
+rm -f ./build/* ./bin/*
 mkdir -p ./build
 
 # Clean previous generated files
@@ -85,24 +117,12 @@ echo "Cleaning previous generated files..."
 echo "Generating pdf file..."
 # Generate PDF file
 if [ "$output_type" == "pdf" ]; then
-    pandoc $input_file -o ./build/$out_filename.pdf \
-      --template=generic_template.tex \
-      --metadata title="$title" \
-      --metadata revision="$revision" \
-      --metadata toc="$toc" \
-      --metadata author="$author" \
-      --metadata date="$date" \
-      -V datefontsize="\small" \
-      --pdf-engine=xelatex
-    echo "PDF file generated at ./build/$out_filename.pdf"
+    run_pandoc "$output_type" "$input_file" "$out_filename" "$title" "$revision" "$toc" "$author" "$date"
+    echo "PDF file generated at ./build/$out_filename.$output_type"
+# Generate DOCX file
 elif [ "$output_type" == "docx" ]; then
-    pandoc $input_file -o ./build/$out_filename.docx \
-      --metadata title="$title" \
-      --metadata revision="$revision" \
-      --metadata toc="$toc" \
-      --metadata author="$author" \
-      --metadata date="$date"
-    echo "DOCX file generated at ./build/$out_filename.docx"
+    run_pandoc "$output_type" "$input_file" "$out_filename" "$title" "$revision" "$toc" "$author" "$date"
+    echo "DOCX file generated at ./build/$out_filename.$output_type"
 fi
 
 # Check if the output file was created successfully
