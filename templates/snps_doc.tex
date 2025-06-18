@@ -1,15 +1,14 @@
 % ###########################################
-% Generic LaTeX Template for User Guide PDF
+% Custom LaTeX Template for Synopsys Documentation
 % author: durgeshr@synopsys.com
-% date: 16/06/2025
+% date: 18/06/2025
 % version: 1.0
-% Note: Written with the help of CoPilot
-% ##########################################
+% ###########################################
 
-
-
-% Generic LaTeX Template for User Guide PDF
 \documentclass[12pt]{article}
+
+% Define \real command at very beginning to prevent "missing control sequence" errors
+\def\real#1{#1}
 
 % Packages
 \usepackage[utf8]{inputenc}
@@ -22,6 +21,7 @@
 \usepackage{float}
 \usepackage{placeins} % Include the placeins package to control figure placement
 \usepackage{xcolor} % For colored text
+\usepackage{etoolbox} % For patching commands
 
 % Page layout
 \geometry{a4paper, left=0.5in, right=0.5in, top=1in, bottom=1in}
@@ -44,7 +44,7 @@
     citecolor=black
 }
 
-% Add header and footer
+% Custom header and footer
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\leftmark}
@@ -59,7 +59,7 @@
 % Ensure all figures are placed exactly where they are defined and scaled appropriately
 \renewcommand{\includegraphics}[2][]{\begin{figure}[H]\centering\Oldincludegraphics[#1]{#2}\ifx\relax#1\relax\else\caption{#1}\fi\end{figure}\FloatBarrier}
 
-% Define \tightlist to avoid errors
+% Define \tightlist to prevent errors
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
@@ -74,6 +74,9 @@
 \newcommand{\todo}[1]{%
   \noindent\fcolorbox{red}{yellow!20}{\parbox{0.95\textwidth}{\textbf{\textcolor{red}{TODO:}} \textit{#1}}}\par
 }
+
+% Optional: Use \sloppy to allow more flexible line breaking
+\sloppy
 
 % Document
 \begin{document}
