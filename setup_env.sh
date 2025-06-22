@@ -5,6 +5,9 @@
 ENV_NAME="docgen"  # Name of your conda environment
 AUTO_COMMAND=""    # Optional command to run after activation, leave empty for just activation
 
+# Get the directory where this script is located, regardless of where it's called from
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
 # Colors for better readability
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -69,6 +72,29 @@ if [ -n "$AUTO_COMMAND" ]; then
 fi
 
 echo -e "${BLUE}---------------------------------------------${NC}"
+
+# Add docgen directory to PATH to make docgen.sh runnable from anywhere
+if [[ ":$PATH:" != *":${SCRIPT_DIR}:"* ]]; then
+    export PATH="${SCRIPT_DIR}:$PATH"
+    echo -e "${GREEN}Added docgen directory to PATH.${NC}"
+    echo -e "You can now run ${YELLOW}docgen.sh${NC} from any location."
+fi
+
+# Create a symlink to /usr/local/bin if user has permissions (needs sudo)
+if [ ! -f "/usr/local/bin/docgen" ] && [ -w "/usr/local/bin" ]; then
+    ln -sf "${SCRIPT_DIR}/docgen.sh" "/usr/local/bin/docgen"
+    echo -e "${GREEN}Created symlink to docgen.sh in /usr/local/bin/${NC}"
+    # echo -e "You can now run ${YELLOW}docgen${NC} from any location."
+elif [ ! -f "/usr/local/bin/docgen" ]; then
+    echo -e "${YELLOW}Tip: For system-wide access, run:${NC}"
+    echo -e "  ${BLUE}sudo ln -sf ${SCRIPT_DIR}/docgen.sh /usr/local/bin/docgen${NC}"
+fi
+
+# Make sure docgen.sh is executable
+if [ -f "${SCRIPT_DIR}/docgen.sh" ]; then
+    chmod +x "${SCRIPT_DIR}/docgen.sh"
+fi
+
 echo -e "${GREEN}Environment is ready!${NC}"
 
 # Note: This script must be sourced to work properly (not executed directly)
