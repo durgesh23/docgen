@@ -85,7 +85,9 @@ function run_pandoc() {
 
   if [ "$output_type" == "pdf" ]; then
       pandoc $input_file -o ./build/$out_filename.$output_type \
-        --template=./templates/snps_doc.tex \
+        --template=./templates/snps_doc_1.tex \
+        --verbose 3> ./build/pandoc_conversion.log \
+        --log=./debug.log \
         --metadata title="$title" \
         --metadata revision="$revision" \
         --metadata toc="$toc" \

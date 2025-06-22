@@ -1,6 +1,3 @@
-<!-- Test Table Support for MD to PDf conversion -->
-
-
 # Section1
 
 ## Section1.1
