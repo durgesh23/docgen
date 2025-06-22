@@ -1,6 +1,7 @@
 #!/bin/bash
 # activate_env.sh - Automatically activates a specified conda environment and runs optional commands
 
+
 # Configuration - Change these variables as needed
 ENV_NAME="docgen"  # Name of your conda environment
 AUTO_COMMAND=""    # Optional command to run after activation, leave empty for just activation
@@ -14,6 +15,13 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+
+# Check if the script is being sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo -e "\033[0;31mError: This script needs to be sourced, not executed.\033[0m"
+    echo -e "Please run: ${YELLOW}source activate_env.sh${NC}"
+    exit 1
+fi
 
 # Display a header
 echo -e "${BLUE}=============================================${NC}"
@@ -85,9 +93,9 @@ if [ ! -f "/usr/local/bin/docgen" ] && [ -w "/usr/local/bin" ]; then
     ln -sf "${SCRIPT_DIR}/docgen.sh" "/usr/local/bin/docgen"
     echo -e "${GREEN}Created symlink to docgen.sh in /usr/local/bin/${NC}"
     # echo -e "You can now run ${YELLOW}docgen${NC} from any location."
-elif [ ! -f "/usr/local/bin/docgen" ]; then
-    echo -e "${YELLOW}Tip: For system-wide access, run:${NC}"
-    echo -e "  ${BLUE}sudo ln -sf ${SCRIPT_DIR}/docgen.sh /usr/local/bin/docgen${NC}"
+# elif [ ! -f "/usr/local/bin/docgen" ]; then
+#     echo -e "${YELLOW}Tip: For system-wide access, run:${NC}"
+#     echo -e "  ${BLUE}sudo ln -sf ${SCRIPT_DIR}/docgen.sh /usr/local/bin/docgen${NC}"
 fi
 
 # Make sure docgen.sh is executable
@@ -99,8 +107,8 @@ echo -e "${GREEN}Environment is ready!${NC}"
 
 # Note: This script must be sourced to work properly (not executed directly)
 # This warning is shown if the script was executed directly
-echo -e "${YELLOW}IMPORTANT: This script should be sourced, not executed directly.${NC}"
-echo -e "${YELLOW}Run with: ${GREEN}source activate_env.sh${NC}"
+# echo -e "${YELLOW}IMPORTANT: This script should be sourced, not executed directly.${NC}"
+# echo -e "${YELLOW}Run with: ${GREEN}source activate_env.sh${NC}"
 
 # If the script detects it's being sourced, the process will stay in the activated environment
 # Otherwise, the environment activation will be lost when script exits
