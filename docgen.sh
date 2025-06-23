@@ -42,16 +42,16 @@ if ! conda env list | grep -q "^${ENV_NAME} "; then
     exit 1
 fi
 
-echo -e "${BLUE}Activating conda environment '${ENV_NAME}'...${NC}"
-conda activate "${ENV_NAME}"
+# echo -e "${BLUE}Activating conda environment '${ENV_NAME}'...${NC}"
+# conda activate "${ENV_NAME}"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Failed to activate environment '${ENV_NAME}'${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}Running docgen/main.py with conda environment '${ENV_NAME}'${NC}"
-echo -e "${YELLOW}Python path: $(which python)${NC}"
+echo -e "${GREEN}Running docgen${NC}"
+# echo -e "${YELLOW}Python path: $(which python)${NC}"
 
 # Run the main script with all arguments passed to this script
 python "$MAIN_SCRIPT" "$@"
