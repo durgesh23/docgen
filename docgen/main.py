@@ -23,7 +23,7 @@ def setup_logger(log_level=logging.INFO, log_file=None):
     ch.setLevel(log_level)
 
     # Create formatter and add it to the handler
-    formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(name)s  %(asctime)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
 
     # Remove any existing handlers
@@ -57,10 +57,14 @@ def parse_arguments():
     valid arguments:
     -i --input: Path to input markdown file.
     -f --format: Specify the output format (e.g., HTML, pdf, docx).
-    -o --output: Specify the output directory for the generated documentation.
+    -m --metadata-file: Path to a metadata file (YAML) for doc details. If no arguments are provided, default values will be used.
     -d --debug: Enable verbose logging.
-    -l --language: Specify the language for the documentation (default is English).
-    -c --config: Path to a configuration file for doc details. If no arguments are provided, default values will be used.
+    
+    ## Advanced Usage
+    -o --output: Specify the output directory for the generated documentation.
+    -p --pandoc-config-file: Path to a Pandoc metadata file (YAML) for full custom generation.
+    -t --template: Path to a Pandoc template file (YAML) for custom generation.
+    
     -h --help: Show help message and exit.
     """
 
@@ -79,60 +83,45 @@ def parse_arguments():
         required=True,
         help='Output format for the documentation (default: pdf)'
     )
-    parser.add_argument(
-        '-o', '--output',
+    parser.add_argument(   
+        '-m', '--metadata-file',
         type=str,
-        default='bin',
-        help='Output doc name'
+        default=None,
+        help='Path to a metadata file (YAML) for doc metadata.'
     )
     parser.add_argument(
         '-d', '--debug',
         action='store_true',
         help='Enable verbose logging'
     )
+    
+    # Advanced Usage
     parser.add_argument(
-        '-l', '--language',
+        '-o', '--output',
         type=str,
-        default='en',
-        help='Language for the documentation (default: en)'
+        default= Path(os.getcwd()),
+        help='Output directory for generated document (default: cwd)'
     )
-    parser.add_argument(   
-        '-c', '--config',
+    parser.add_argument(
+        '-p', '--pandoc-config-file',
         type=str,
         default=None,
-        help='Path to a configuration file for doc parameters (default: None, no config file used)'
+        help='Path to a Pandoc metadata file (YAML) for full custom generation.'
     )
+    parser.add_argument(
+        '-t', '--template-file',
+        type=str,
+        default=None,
+        help='Path to a Pandoc template file (YAML) for custom generation.'
+    )
+
     # parser.add_argument(
     #     '-h', '--help',
     #     action='help',
     #     help='Show this help message and exit'
     # )
 
-    args = parser.parse_args()
-    # Validate output directory
-    if not os.path.exists(args.output):
-        try:
-            os.makedirs(args.output)
-            logger.info(f"Created output directory: {args.output}")
-        except OSError as e:
-            logger.error(f"Failed to create output directory: {e}")
-            sys.exit(1)
-    else:
-        logger.info(f"Output directory already exists: {args.output}")
-    # Validate format
-    if args.format not in ['html', 'pdf', 'docx']:
-        logger.error(f"Invalid format specified: {args.format}. Choose from 'html', 'pdf', or 'docx'.")
-        sys.exit(1)
-    # Validate language
-    if args.language not in ['en', 'fr', 'es', 'de']:
-        logger.error(f"Invalid language specified: {args.language}. Choose from 'en', 'fr', 'es', or 'de'.")
-        sys.exit(1)
-    # Validate config file
-    if args.config and not os.path.isfile(args.config):
-        logger.error(f"Configuration file not found: {args.config}")
-        sys.exit(1)
-    # logging.debug(f"Parsed arguments: {args}")
-    
+    # args = parser.parse_args()    
     return parser
 
 
@@ -153,34 +142,22 @@ def main(args=None):
         parser.print_help()
         sys.exit(2)
     
+
     # Setup logger
-    logger = setup_logger(args.debug and logging.DEBUG or logging.INFO,
-                          log_file=Path(args.output) / 'docgen.log' if args.output else Path('.') / 'docgen.log')
+    logger = setup_logger(args.debug and logging.DEBUG or logging.INFO
+                , DE3log_file= args.output / 'logs' / 'docgen.log')
     
-    # Set logger level based on verbosity
-    if args.debug:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
     logger.info("Starting documentation generation process...")
 
-    # Log the parsed arguments
-    logger.debug(f"Arguments:")
-    logger.debug(f"Input file: {args.input}")
-    logger.debug(f"Output format: {args.format}")
-    logger.debug(f"Output directory: {args.output}")
-    logger.debug(f"Language: {args.language}")
-    logger.debug(f"Configuration file: {args.config}")  
-    logger.debug(f"cwd: {cwd}")
-    
     # Create DocGen instance
-    docgen = DocGen(
-        input_file=args.input,
-        out_file_name=args.output,
-        output_format=args.format,
-        output_dir=cwd,
-        language=args.language,
-        config_file=args.config
+    docgen = DocGen(input_file=args.input
+        , out_file_name=args.output
+        , output_format=args.format
+        , output_dir=cwd
+        , language=args.language
+        , metadata_file=args.metadata_file
+        , pandoc_metadata_file=args.pandoc_metadata_file
+        , template=args.template
     )
     
     docgen.generate()

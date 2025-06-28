@@ -1,0 +1,43 @@
+# Default PDF configuration for the documentation generator.
+# This file is used to set the default options for generating PDF documentation.
+
+# You can override these settings in your project's configuration file.
+
+# Default PDF configuration
+pdf-engine: xelatex
+standalone: true
+
+# Table of contents settings
+toc: true
+toc-depth: 3
+toc-title: "Table of Contents"
+
+number-sections: true
+
+
+# Page Layout and Formatting
+geometry:
+  # Page size for the PDF document
+  pagesize: A4
+  documentclass: article # article/report/book
+
+  # Margins for the PDF document
+  margins:
+    top: 1.0in
+    bottom: 1.0in
+    left: 1.0in
+    right: 1.0in
+
+  # Orientation of the PDF document
+  orientation: portrait
+
+# Font and Typography
+mainfont: "DejaVu Serif"
+sansfont: "DejaVu Sans"
+monofont: "DejaVu Sans Mono"
+fontencoding: "T1" # Font encoding for the document
+
+# Code Highlighting
+
+# valid options: pygments, kate, fancyvrb, listings
+highlight-style: "pygments" # Style for code highlighting

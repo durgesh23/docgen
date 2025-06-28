@@ -40,7 +40,7 @@ if [ -n "$1" ]; then
     ENV_NAME="$1"
 fi
 
-echo -e "Attempting to activate environment: ${YELLOW}$ENV_NAME${NC}"
+# echo -e "Attempting to activate environment: ${YELLOW}$ENV_NAME${NC}"
 
 # Check if the environment exists
 if ! conda env list | grep -q "^$ENV_NAME "; then
@@ -65,12 +65,11 @@ echo -e "${GREEN}Successfully activated environment: ${YELLOW}$ENV_NAME${NC}"
 
 # Check conda Python is being used
 PYTHON_PATH=$(which python)
-echo -e "Using Python: ${YELLOW}$PYTHON_PATH${NC}"
+# echo -e "Using Python: ${YELLOW}$PYTHON_PATH${NC}"
 
 # Print environment info
 echo -e "${BLUE}---------------------------------------------${NC}"
-echo -e "${BLUE}Python version:${NC}"
-python --version
+echo -e "${BLUE}Python version:${NC} $(python --version)"
 
 # Execute additional command if specified
 if [ -n "$AUTO_COMMAND" ]; then
