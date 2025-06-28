@@ -1,7 +1,0 @@
----
-title: Ford ECG2 User Guide
-author: Synopsys
-rights: 
-language: en-US
-Revision: 0.1.dev
----
