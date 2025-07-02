@@ -1,44 +1,30 @@
-# Default PDF configuration for the documentation generator.
-# This file is used to set the default options for generating PDF documentation.
+# DocGen default Pandoc metadata file
+#pandoc default metadata file
 
-# You can override these settings in your project's configuration file.
-
-# Default PDF configuration
-pdf-engine: xelatex
-standalone: true
-titlepage: true
-
-# Table of contents settings
+# toc
 toc: true
-toc-depth: 3
-toc-title: "Table of Contents"
+toc-depth: 2
+numbersections: true
 
-number-sections: true
+# geometry
+papersize: A4
+documentclass: report
+# geometry: margin=top=1in, bottom=1in, left=1in, right=1in
 
 
-# Page Layout and Formatting
-geometry:
-  # Page size for the PDF document
-  pagesize: A4
-  documentclass: article # article/report/book
+colorlinks: true
+linkcolor: magenta
+urlcolor: blue
+citecolor: blue
 
-  # Margins for the PDF document
-  margins:
-    top:    0.8in
-    bottom: 0.8in
-    left:   0.8in
-    right:  0.8in
+# Header / Footer
+# header-includes: |
+#   \usepackage{fancyhdr}
+#   \pagestyle{fancy}
+#   \fancyhf{}
+#   \fancyhead[L]{\leftmark}
+#   \fancyhead[R]{\thepage}
+#   \fancyfoot[C]{\thepage}
+#   \renewcommand{\headrulewidth}{0.4pt}
+#   \renewcommand{\footrulewidth}{0.4pt}
 
-  # Orientation of the PDF document
-  orientation: portrait
-
-# Font and Typography
-mainfont: "DejaVu Serif"
-sansfont: "DejaVu Sans"
-monofont: "DejaVu Sans Mono"
-fontencoding: "T1" # Font encoding for the document
-
-# Code Highlighting
-
-# valid options: pygments, kate, fancyvrb, listings
-highlight-style: "pygments" # Style for code highlighting

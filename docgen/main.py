@@ -165,7 +165,7 @@ def main(args=None):
     # Create DocGen instance
     docgen = DocGen(input_file=args.input
         , output_format=args.format
-        , output_dir=cwd
+        , output_dir=args.output
         , metadata_file=args.metadata_file
         , pandoc_config_file=args.pandoc_config_file
         , template_file=args.template_file

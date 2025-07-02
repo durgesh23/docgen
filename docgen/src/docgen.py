@@ -1,12 +1,12 @@
 import os
 import sys
 import logging
-import yaml
+from ruamel.yaml import YAML
 from pathlib import Path
+import pypandoc
 
 # Configure logging
 logger = logging.getLogger(__name__)
-import pypandoc
 
 class DocGenFormats:
     """A class to hold the supported output formats for DocGen."""
@@ -183,11 +183,13 @@ class DocGenCore:
     DEF_TEMPLATE_DOCX = parent_folder / 'templates' / 'default_docx_template.yaml'
 
     def __init__(self
+            , output_dir: Path
             , pandoc_cfg_file: Path
             , template_file: Path
         ):
         """Initialize the DocGenCore with input file and output format."""
         
+        self.output_dir = Path(output_dir)
         self.pandoc_cfg_file = pandoc_cfg_file
         self.template_file = template_file
         self.is_custom_template = True if template_file else False
@@ -204,7 +206,9 @@ class DocGenCore:
         
         # TODO: Validate if the template file is compatible with the output format
 
-    
+        #Create a consolidated metadata file for pandoc      
+        self.docgen_metadata_file = self.output_dir / 'logs' / 'docgen_metadata.yml'
+
     def convert(self
             , input_file: Path
             , output_format: str
@@ -213,21 +217,19 @@ class DocGenCore:
         ):
         """Convert the input Markdown file to the specified output format using Pandoc."""
         logger.info(f"Converting {input_file} to {output_format} format...")
-        # Ensure the output file has the correct extension        
 
-        self.output_format = output_format.lower()       
+        # Generate pandoc conslidated metadata yml file
+        self.generate_docgen_metadata_file(metadata)
 
-        pandoc_extra_args = self.get_pandoc_args()
-        doc_extra_args = self.get_doc_args(metadata)
+        # Set Extra aruments
+        extra_args = []
+        extra_args = self.get_pandoc_extra_args()
         
-        extra_args = pandoc_extra_args + doc_extra_args
         try:
             output = pypandoc.convert_file(input_file
                 , to=output_format
                 , outputfile=output_file
                 , extra_args=extra_args
-                # template=self.template_file if self.is_custom_template else None,
-                # pandoc_version='2.11'  # Specify the Pandoc version if needed
             )
             logger.debug(f"Pandoc output: {output}")
         except Exception as e:
@@ -236,7 +238,34 @@ class DocGenCore:
         else:
             logger.info(f"Conversion completed. Output file: {output_file}")
 
-    def get_doc_args(self, metadata: dict=None):
+    def generate_docgen_metadata_file(self, doc_metadata: dict=None):
+        """Generate a consolidated metadata file for Pandoc."""
+        logger.info(f"Generating consolidated metadata file: {self.docgen_metadata_file}")
+        
+        # Get Document arguments for Pandoc conversion
+        doc_args = doc_metadata #self.get_doc_args(metadata=doc_metadata)
+        
+        # Get Pandoc metadata
+        pandoc_args = self.get_pandoc_metadata()
+        
+        logger.debug(f"Document Args: {doc_args}")
+        logger.debug(f"Pandoc Args: {pandoc_args}")
+
+        # Combine both dicts
+        consolidated_metadata = {**doc_args, **pandoc_args}
+
+        # Dump the consolidated metadata to a YAML file
+        DocGenCore.dump_yaml(consolidated_metadata, self.docgen_metadata_file)
+    
+    def get_pandoc_extra_args(self) -> list:
+        """ Generate additional arguments for Pandoc conversion."""
+        extra_args = []
+        
+        # Get Pandoc metadata-file
+        extra_args.append(f"--metadata-file={self.docgen_metadata_file}")
+        return extra_args
+
+    def get_doc_args(self, metadata: dict=None)-> dict:
         """Get additional arguments for Pandoc conversion."""
         extra_args = []
        
@@ -248,46 +277,6 @@ class DocGenCore:
             extra_args.append(f"--variable=date:{metadata['date']}")
 
         logger.debug(f"Doc Args: {extra_args}")
-
-        return extra_args
-
-    def get_pandoc_args(self):
-        """Get additional arguments for Pandoc conversion."""
-        extra_args= []        
-
-        metadata = self.get_pandoc_metadata()
-        
-        # PDF Format related arguments
-        if(self.output_format == DocGenFormats.PDF):
-            # For PDF output, use xelatex as the PDF engine
-            extra_args.append("--pdf-engine=xelatex")
-            # Add titlepage option
-            if metadata.get('titlepage'):
-                extra_args.append("--variable=titlepage:true")
-                # Also add these helpful options for better PDF formatting
-                extra_args.append("--variable=documentclass:report")
-                extra_args.append("--variable=geometry:margin=0.8in")         
-
-
-
-
-        if(metadata.get('standalone')):
-            extra_args.append("--standalone")
-
-        # Generic arguments
-        if(metadata.get('toc')):
-            extra_args.append("--toc")
-        if(metadata.get('toc-depth')):
-            extra_args.append(f"--toc-depth={metadata['toc-depth']}")
-        if(metadata.get('number-sections')):
-            extra_args.append("--number-sections")
-
-        # Set Template if provided
-        if(self.is_custom_template):
-            extra_args.append(f"--template={self.template_file}")
-        
-        logger.debug(f"Pandoc Args: {extra_args}")
-
         return extra_args
 
     def get_pandoc_metadata(self):
@@ -305,8 +294,9 @@ class DocGenCore:
     def parse_yaml(yaml_file):
         """Parse a YAML file and return its content."""
         try:
+            yaml = YAML()
             with open(yaml_file, 'r') as file:
-                data = yaml.safe_load(file)
+                data = yaml.load(file)
                 logger.debug(f"Parsed YAML file: {yaml_file}")
                 logger.debug(f"YAML content: {data}")
                 return data
@@ -319,6 +309,46 @@ class DocGenCore:
         except Exception as e:
             logger.error(f"Unexpected error parsing YAML file: {e}")
             sys.exit(1)
+
+    @staticmethod
+    def dump_yaml(data: dict, output_file: Path):
+        """Dump data to a YAML file."""
+        # Check if `output_file` is a valid Path object
+        if not isinstance(output_file, Path):
+            logger.error(f"Output file must be a Path object, got {type(output_file)}")
+            sys.exit(1)
+        # Ensure the output directory exists
+        if not output_file.parent.exists():
+            try:
+                output_file.parent.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created output directory: {output_file.parent}")
+            except OSError as e:
+                logger.error(f"Failed to create output directory: {e}")
+                sys.exit(1)
+        # Remove the file if it already exists
+        if output_file.exists():
+            try:
+                output_file.unlink()
+                logger.info(f"Removed existing file: {output_file}")
+            except OSError as e:
+                logger.error(f"Failed to remove existing file: {e}")
+                sys.exit(1)
+        
+        # Write the YAML content to the file
+        try:
+            yaml = YAML()
+            yaml.indent(mapping=2, sequence=4, offset=2)
+            yaml.preserve_quotes = True  # Preserve quotes in the output
+
+            with open(output_file, 'w') as file:
+                yaml.dump(data, file)
+                logger.debug(f"YAML content written to {output_file}")
+        except Exception as e:
+            logger.error(f"Failed to write YAML file: {e}")
+            sys.exit(1)
+
+
+
 
 # DocGen: A simple documentation generator using Pandoc
 class DocGen (DocGenCore):
@@ -363,7 +393,8 @@ class DocGen (DocGenCore):
         # self.template_file = Path(template_file) if template_file else None
 
         # Initialize the DocGenCore with Pandoc configuration and template
-        super().__init__(pandoc_cfg_file=Path(pandoc_config_file) if pandoc_config_file else None
+        super().__init__(output_dir = self.output_dir
+            , pandoc_cfg_file=Path(pandoc_config_file) if pandoc_config_file else None
             , template_file=Path(template_file) if template_file else None
         )
 
