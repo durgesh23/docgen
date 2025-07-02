@@ -5,33 +5,34 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
-from src.docgen import DocGen
-
 logger = logging.getLogger("DocGenMain")
+from src.docgen import DocGen
 
 # docgen/main.py
 
 def setup_logger(log_level=logging.INFO, log_file=None):
     """Configure and return logger."""
-    # Create a logger
-    global logger
-    # logger = logging.getLogger("DocGenMain")
-    logger.setLevel(log_level)
-
+    # Configure the root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+    
     # Create console handler with a higher log level
     ch = logging.StreamHandler()
     ch.setLevel(log_level)
 
     # Create formatter and add it to the handler
-    formatter = logging.Formatter('%(name)s  %(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        fmt='%(name)s  %(asctime)s - %(levelname)s - %(message)s'
+        , datefmt='%Y-%m-%d'
+    )
     ch.setFormatter(formatter)
 
-    # Remove any existing handlers
-    if logger.hasHandlers():
-        logger.handlers.clear()
+    # Remove any existing handlers from root logger
+    if root_logger.hasHandlers():
+        root_logger.handlers.clear()
 
-    # Add handler to logger
-    logger.addHandler(ch)
+    # Add handler to root logger
+    root_logger.addHandler(ch)
 
     # Add file handler if log_file is specified
     if log_file:
@@ -43,13 +44,19 @@ def setup_logger(log_level=logging.INFO, log_file=None):
                 logging.info(f"Created log directory: {log_dir}")
             except OSError as e:
                 logging.error(f"Failed to create log directory: {e}")
-                sys.exit(1)
+                
         fh = logging.FileHandler(log_file)
         fh.setLevel(log_level)
         fh.setFormatter(formatter)
-        logger.addHandler(fh)
+        root_logger.addHandler(fh)
     
-    return logger
+    # Now configure the DocGenMain logger
+    global logger
+    logger.setLevel(log_level)
+    logger.propagate = False  # Don't propagate to root since we're adding handlers directly
+    
+    # Return the root logger
+    return root_logger
 
 def parse_arguments():
     """
@@ -71,7 +78,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Generate Doc project.")
     parser.add_argument(
         '-i', '--input',
-        type=str,
+        type=Path,
         required=True,
         help='Path to the input markdown file'
     )
@@ -85,13 +92,19 @@ def parse_arguments():
     )
     parser.add_argument(   
         '-m', '--metadata-file',
-        type=str,
+        type=Path,
         default=None,
         help='Path to a metadata file (YAML) for doc metadata.'
     )
     parser.add_argument(
         '-d', '--debug',
         action='store_true',
+        help='Enable verbose logging'
+    )
+    parser.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        default=logging.INFO,
         help='Enable verbose logging'
     )
     
@@ -144,20 +157,18 @@ def main(args=None):
     
 
     # Setup logger
-    logger = setup_logger(args.debug and logging.DEBUG or logging.INFO
-                , DE3log_file= args.output / 'logs' / 'docgen.log')
+    logger = setup_logger(args.verbose  #and logging.DEBUG or logging.INFO
+                , log_file= args.output / 'logs' / 'docgen.log')
     
     logger.info("Starting documentation generation process...")
 
     # Create DocGen instance
     docgen = DocGen(input_file=args.input
-        , out_file_name=args.output
         , output_format=args.format
         , output_dir=cwd
-        , language=args.language
         , metadata_file=args.metadata_file
-        , pandoc_metadata_file=args.pandoc_metadata_file
-        , template=args.template
+        , pandoc_config_file=args.pandoc_config_file
+        , template_file=args.template_file
     )
     
     docgen.generate()

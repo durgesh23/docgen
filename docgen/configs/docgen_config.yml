@@ -6,6 +6,7 @@
 # Default PDF configuration
 pdf-engine: xelatex
 standalone: true
+titlepage: true
 
 # Table of contents settings
 toc: true
@@ -23,10 +24,10 @@ geometry:
 
   # Margins for the PDF document
   margins:
-    top: 1.0in
-    bottom: 1.0in
-    left: 1.0in
-    right: 1.0in
+    top:    0.8in
+    bottom: 0.8in
+    left:   0.8in
+    right:  0.8in
 
   # Orientation of the PDF document
   orientation: portrait
@@ -38,5 +39,6 @@ monofont: "DejaVu Sans Mono"
 fontencoding: "T1" # Font encoding for the document
 
 # Code Highlighting
+
 # valid options: pygments, kate, fancyvrb, listings
 highlight-style: "pygments" # Style for code highlighting

@@ -3,13 +3,10 @@ import sys
 import logging
 import yaml
 from pathlib import Path
-import pandoc
-# Importing pandoc types for type annotations
-from pandoc.types import *
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
+import pypandoc
 
 class DocGenFormats:
     """A class to hold the supported output formats for DocGen."""
@@ -50,41 +47,45 @@ class DocGenValidator:
         """Initialize the DocGenValidator."""
         pass
 
-
     @staticmethod
-    def validate(input_file, output_format, output_dir, metadata_file=None, pandoc_metadata_file=None, template_file=None):
+    def validate(input_file: Path
+            , output_format: str
+            , output_dir: Path
+        ):
         """Validate the input parameters for DocGen."""
         logger.info("Validating input parameters for DocGen...")
 
+        logger.info("#"*50)
         # Validate input file
         DocGenValidator.validate_input_file(input_file)
         # Validate output format
         DocGenValidator.validate_output_format(output_format)
         # Validate output directory
         DocGenValidator.validate_output_directory(output_dir)
+        logger.info("#"*50)
     
     @staticmethod
-    def validate_pandoc_files(metadata_file, pandoc_metadata_file, template_file):
+    def validate_pandoc_cfg_files(pandoc_metadata_file: Path
+            , template_file: Path
+        ):
         """Validate the Pandoc configuration files."""
 
-        # Validate metadata file
-        DocGenValidator.validate_metadata_file(metadata_file)
         # Validate Pandoc metadata file
         DocGenValidator.validate_pandoc_metadata_file(pandoc_metadata_file)
         # Validate template file
         DocGenValidator.validate_template_file(template_file)
 
     @staticmethod
-    def validate_input_file(input_file):
+    def validate_input_file(input_file: Path):
         """Validate the input file path."""
         
-        logger.info(f"Input file: {input_file}")
+        logger.info(f"Input file: ./{input_file}")
         if not os.path.isfile(input_file):
             logger.error(f"Input file does not exist: {input_file}")
             sys.exit(1)
 
     @staticmethod
-    def validate_output_format(output_format):
+    def validate_output_format(output_format: str):
         """Validate the output format."""
 
         logger.info(f"Output format: {output_format}")
@@ -93,10 +94,10 @@ class DocGenValidator:
             sys.exit(1)
     
     @staticmethod
-    def validate_output_directory(output_dir):
+    def validate_output_directory(output_dir: Path):
         """Validate the output directory."""
 
-        logger.info(f"Output directory: {output_dir.str()}")
+        logger.info(f"Output directory: {output_dir}")
         if not os.path.isdir(output_dir):
             try:
                 os.makedirs(output_dir)
@@ -106,7 +107,7 @@ class DocGenValidator:
                 sys.exit(1)
     
     @staticmethod
-    def validate_metadata_file(metadata_file):
+    def validate_metadata_file(metadata_file: Path):
         """Validate the metadata file."""
 
         logger.info(f"Document Metadata file: {metadata_file}")
@@ -115,28 +116,28 @@ class DocGenValidator:
             sys.exit(1)
 
     @staticmethod
-    def validate_pandoc_metadata_file(pandoc_metadata_file):
+    def validate_pandoc_metadata_file(pandoc_metadata_file: Path):
         """Validate the Pandoc metadata file."""
 
-        logger.info(f"Pandoc metadata/config file: {pandoc_metadata_file}")
+        logger.debug(f"Pandoc metadata/config file: {pandoc_metadata_file}")
         if pandoc_metadata_file and not os.path.isfile(pandoc_metadata_file):
             logger.error(f"Pandoc metadata file not found: {pandoc_metadata_file}")
             sys.exit(1)
     
     @staticmethod
-    def validate_template_file(template_file):
+    def validate_template_file(template_file: Path):
         """Validate the template file."""
 
-        logger.info(f"Template file: {template_file}")
+        logger.debug(f"Pandoc Template file:{template_file}")
         if template_file and not os.path.isfile(template_file):
             logger.error(f"Template file not found: {template_file}")
             sys.exit(1)
 
     @staticmethod
-    def validate_markdown_file(markdown_file):
+    def validate_markdown_file(markdown_file: Path):
         """Validate the Markdown file for basic syntax errors."""
         
-        logger.info(f"Validating Markdown file: {markdown_file}")
+        logger.debug(f"Validating Markdown file: {markdown_file}")
         try:
             with open(markdown_file, 'r') as file:
                 content = file.read()
@@ -173,52 +174,151 @@ class DocGenCore:
     """
     
     # Global class attributes
-    parent_folder = Path(__file__).parent
+    parent_folder = Path(__file__).parents[1]
     # Pandoc configuration file
-    DEF_PANDOC_CFG = parent_folder / 'configs' / 'docgen_config.yaml'
+    DEF_PANDOC_CFG = parent_folder / 'configs' / 'docgen_config.yml'
     # Pandoc Default templates
     DEF_TEMPLATE_PDF  = parent_folder / 'templates' /'default_pdf.tex'
     DEF_TEMPALTE_HTML = parent_folder / 'templates' / 'default_html_template.html'
     DEF_TEMPLATE_DOCX = parent_folder / 'templates' / 'default_docx_template.yaml'
 
-    def __init__(self, output_format, metadata_file, pandoc_cfg, template):
+    def __init__(self
+            , pandoc_cfg_file: Path
+            , template_file: Path
+        ):
         """Initialize the DocGenCore with input file and output format."""
         
-        self.output_format = output_format
-        self.metadata_file = metadata_file
-        self.pandoc_cfg = pandoc_cfg
-        self.template = template
-        self.is_custom_temaplte = False
+        self.pandoc_cfg_file = pandoc_cfg_file
+        self.template_file = template_file
+        self.is_custom_template = True if template_file else False
+
         # Set parameters
-        if self.pandoc_cfg is None:
-            self.pandoc_cfg = DocGen.DEF_PANDOC_CFG
-        if self.template is None:
-            if self.output_format == DocGenFormats.PDF:
-                self.template = self.DEF_TEMPLATE_PDF
-            elif self.output_format == DocGenFormats.HTML:
-                self.template = self.DEF_TEMPALTE_HTML
-            elif self.output_format == DocGenFormats.DOCX:
-                self.template = self.DEF_TEMPLATE_DOCX
-            else:
-                logger.error(f"Unsupported output format: {self.output_format}")
-                sys.exit(1)
-        else:
-            self.is_custom_template = True
+        if(self.pandoc_cfg_file is None):
+            self.pandoc_cfg_file = DocGen.DEF_PANDOC_CFG
         
         # Validate Pandoc configuration files existence
-        DocGenValidator.validate_pandoc_files(
-            metadata_file= self.metadata_file,  # Metadata file is optional
-            pandoc_metadata_file=self.pandoc_cfg,
-            template_file=self.template
+        DocGenValidator.validate_pandoc_cfg_files(
+            pandoc_metadata_file= self.pandoc_cfg_file,
+            template_file= self.template_file
         )
         
         # TODO: Validate if the template file is compatible with the output format
 
     
-    def  generate(self):
-        """Generate documentation based on the provided parameters."""
-        raise NotImplementedError("This method should be implemented in subclasses.")
+    def convert(self
+            , input_file: Path
+            , output_format: str
+            , output_file: Path=None
+            , metadata: dict=None
+        ):
+        """Convert the input Markdown file to the specified output format using Pandoc."""
+        logger.info(f"Converting {input_file} to {output_format} format...")
+        # Ensure the output file has the correct extension        
 
+        self.output_format = output_format.lower()       
+
+        pandoc_extra_args = self.get_pandoc_args()
+        doc_extra_args = self.get_doc_args(metadata)
+        
+        extra_args = pandoc_extra_args + doc_extra_args
+        try:
+            output = pypandoc.convert_file(input_file
+                , to=output_format
+                , outputfile=output_file
+                , extra_args=extra_args
+                # template=self.template_file if self.is_custom_template else None,
+                # pandoc_version='2.11'  # Specify the Pandoc version if needed
+            )
+            logger.debug(f"Pandoc output: {output}")
+        except Exception as e:
+            logger.error(f"Failed to convert {input_file} to {output_format}: {e}")
+            sys.exit(1)
+        else:
+            logger.info(f"Conversion completed. Output file: {output_file}")
+
+    def get_doc_args(self, metadata: dict=None):
+        """Get additional arguments for Pandoc conversion."""
+        extra_args = []
+       
+        if(metadata.get('title')):
+            extra_args.append(f"--variable=title:{metadata['title']}")
+        if(metadata.get('author')):
+            extra_args.append(f"--variable=author:{metadata['author']}")
+        if(metadata.get('date')):
+            extra_args.append(f"--variable=date:{metadata['date']}")
+
+        logger.debug(f"Doc Args: {extra_args}")
+
+        return extra_args
+
+    def get_pandoc_args(self):
+        """Get additional arguments for Pandoc conversion."""
+        extra_args= []        
+
+        metadata = self.get_pandoc_metadata()
+        
+        # PDF Format related arguments
+        if(self.output_format == DocGenFormats.PDF):
+            # For PDF output, use xelatex as the PDF engine
+            extra_args.append("--pdf-engine=xelatex")
+            # Add titlepage option
+            if metadata.get('titlepage'):
+                extra_args.append("--variable=titlepage:true")
+                # Also add these helpful options for better PDF formatting
+                extra_args.append("--variable=documentclass:report")
+                extra_args.append("--variable=geometry:margin=0.8in")         
+
+
+
+
+        if(metadata.get('standalone')):
+            extra_args.append("--standalone")
+
+        # Generic arguments
+        if(metadata.get('toc')):
+            extra_args.append("--toc")
+        if(metadata.get('toc-depth')):
+            extra_args.append(f"--toc-depth={metadata['toc-depth']}")
+        if(metadata.get('number-sections')):
+            extra_args.append("--number-sections")
+
+        # Set Template if provided
+        if(self.is_custom_template):
+            extra_args.append(f"--template={self.template_file}")
+        
+        logger.debug(f"Pandoc Args: {extra_args}")
+
+        return extra_args
+
+    def get_pandoc_metadata(self):
+        """Parse Pandoc metadata from a YAML file."""
+        pandoc_metadata = {}
+        logger.debug(f"Parsing Pandoc metadata from file: {self.pandoc_cfg_file}")
+        try:
+            pandoc_metadata = DocGenCore.parse_yaml(self.pandoc_cfg_file)
+            return pandoc_metadata
+        except Exception as e:
+            logger.error(f"Failed to parse Pandoc metadata file: {e}")
+            sys.exit(1)
+
+    @staticmethod
+    def parse_yaml(yaml_file):
+        """Parse a YAML file and return its content."""
+        try:
+            with open(yaml_file, 'r') as file:
+                data = yaml.safe_load(file)
+                logger.debug(f"Parsed YAML file: {yaml_file}")
+                logger.debug(f"YAML content: {data}")
+                return data
+        except FileNotFoundError:
+            logger.error(f"YAML file not found: {yaml_file}")
+            sys.exit(1)
+        except yaml.YAMLError as e:
+            logger.error(f"Invalid YAML syntax in {yaml_file}: {e}")
+            sys.exit(1)
+        except Exception as e:
+            logger.error(f"Unexpected error parsing YAML file: {e}")
+            sys.exit(1)
 
 # DocGen: A simple documentation generator using Pandoc
 class DocGen (DocGenCore):
@@ -244,34 +344,38 @@ class DocGen (DocGenCore):
             , output_format={self.output_format}\
             , output_dir={self.output_dir}\
             , metadata_file={self.metadata_file}\
-            , pandoc_metadata_file={self.pandoc_metadata_file}\
-            , template={self.template})"
+            , pandoc_config_file={self.pandoc_config_file}\
+            , template={self.template_file})"
 
-    def __init__(self, input_file, output_format, output_dir, metadata_file=None, pandoc_metadata_file=None, template=None):
-        self.input_file = input_file
+    def __init__(self
+            , input_file: Path
+            , output_format: str
+            , output_dir: Path
+            , metadata_file: Path=None
+            , pandoc_config_file: Path=None
+            , template_file: Path=None
+        ):
+        self.input_file = Path(input_file)
         self.output_format = output_format
-        self.output_dir = output_dir
-        self.metadata_file = metadata_file
-        self.pandoc_metadata_file = pandoc_metadata_file
-        self.template = template
+        self.output_dir = Path(output_dir)
+        self.metadata_file = Path(metadata_file) if metadata_file else None
+        # self.pandoc_config_file = Path(pandoc_config_file) if pandoc_config_file else None
+        # self.template_file = Path(template_file) if template_file else None
+
+        # Initialize the DocGenCore with Pandoc configuration and template
+        super().__init__(pandoc_cfg_file=Path(pandoc_config_file) if pandoc_config_file else None
+            , template_file=Path(template_file) if template_file else None
+        )
 
         # Validate Pandoc configuration files
         DocGenValidator.validate(input_file = self.input_file
             , output_format = self.output_format
             , output_dir= self.output_dir
-            , metadata_file = self.metadata_file
-            # pandoc_metadata_file = self.pandoc_metadata_file,
-            # template_file = self.template
         )
+        # Validate metadata file if provided
+        if self.metadata_file:
+            DocGenValidator.validate_metadata_file(self.metadata_file)
 
-        # Initialize the DocGenCore with Pandoc configuration and template
-        super().__init__(output_format=self.output_format
-            , metadata_file=self.metadata_file
-            , pandoc_cfg= self.pandoc_metadata_file
-            , template=self.template
-        )
-
-        logger.info(f"Initialized DocGen with input file: {self.input_file}, output format: {self.output_format}, output directory: {self.output_dir}, language: {self.language}, config file: {self.config_file}")
 
     def generate(self):
         """Generate documentation based on the provided parameters."""
@@ -286,39 +390,13 @@ class DocGen (DocGenCore):
         # Parse metadata if provided               
         metadata = self.get_metadata()
         pandoc_metadata = self.get_pandoc_metadata()
-    
-        if(self.output_format == 'pdf'):
-            self.convert_md_to_pdf(metadata, pandoc_metadata)
-        elif(self.output_format == 'docx'):
-            self.convert_md_to_docx(metadata, pandoc_metadata)
-        elif(self.output_format == 'html'):
-            self.convert_md_to_html(metadata, pandoc_metadata)
-        else:
-            logger.error(f"Unsupported output format: {self.output_format}")
-            sys.exit(1)
 
-
-
-    def convert_md_to_pdf(self):
-        """Convert Markdown file to PDF using Pandoc."""
-
-        # Get default configuration for Pandoc
-        config_file = self.default_config_file if self.
-        # Get pdf tempalate
-        template = self.DEF_TEMPLATE_PDF if self.template is None else self.template
-        if not os.path.isfile(template):
-            logger.error(f"Template file not found: {template}")
-            sys.exit(1)
-        ...
-
-    def convert_md_to_docx(self):
-        """Convert Markdown file to DOCX using Pandoc."""
-        ...
-    
-    def convert_md_to_html(self):
-        """Convert Markdown file to HTML using Pandoc."""
-        ...
-    
+        # Convert
+        self.convert(self.input_file
+            , self.output_format
+            , output_file=self.output_dir / f"{self.input_file.stem}.{self.output_format}"
+            , metadata=metadata
+        )
 
     def validate_markdown_file(self, markdown_file):
         """Validate the Markdown file for basic syntax errors."""
@@ -337,35 +415,9 @@ class DocGen (DocGenCore):
 
     def get_metadata(self):
         """Parse metadata from a YAML file."""
-        metadata = {}
-        if self.metadata_file is None:
-            return metadata
         try:
             metadata = self.parse_yaml(self.metadata_file)
             return metadata
         except Exception as e:
             logger.error(f"Failed to parse metadata file: {e}")
-            sys.exit(1)
-
-    def parse_pandoc_metadata(self):
-        """Parse Pandoc metadata from a YAML file."""
-        pandoc_metadata = {}
-        if self.pandoc_metadata_file is None:
-            return pandoc_metadata
-        try:
-            pandoc_metadata = self.parse_yaml(self.pandoc_metadata_file)
-            return pandoc_metadata
-        except Exception as e:
-            logger.error(f"Failed to parse Pandoc metadata file: {e}")
-            sys.exit(1)
-
-    def parse_yaml(self, yaml_file):
-        """Parse a YAML file and return its content."""
-        try:
-            with open(yaml_file, 'r') as file:
-                data = yaml.safe_load(file)
-                logger.info(f"Parsed YAML file: {yaml_file}")
-                return data
-        except Exception as e:
-            logger.error(f"Failed to parse YAML file: {e}")
             sys.exit(1)

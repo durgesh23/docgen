@@ -1,6 +1,0 @@
----
-title: Test Title
-author: Durgesh Ranjan
-rights: None
-language: en-US
----
