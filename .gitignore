@@ -14,4 +14,7 @@ venv/
 *.log
 # Ignore coverage reports
 *.coverage
+# Ignore logs folders at any depth
+logs/
+**/logs/**
 
