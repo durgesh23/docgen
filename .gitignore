@@ -17,4 +17,5 @@ venv/
 # Ignore logs folders at any depth
 logs/
 **/logs/**
-
+#ignore pdf files
+*.pdf
