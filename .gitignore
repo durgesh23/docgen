@@ -19,3 +19,5 @@ logs/
 **/logs/**
 #ignore pdf files
 *.pdf
+#ignore projects folder
+projects/*
