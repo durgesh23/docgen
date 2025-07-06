@@ -178,7 +178,7 @@ class DocGenCore:
     # Pandoc configuration file
     DEF_PANDOC_CFG = parent_folder / 'configs' / 'docgen_config.yml'
     # Pandoc Default templates
-    DEF_TEMPLATE_PDF  = parent_folder / 'templates' /'default_pdf.tex'
+    DEF_TEMPLATE_PDF  = parent_folder / 'templates' /'default.latex'
     DEF_TEMPALTE_HTML = parent_folder / 'templates' / 'default_html_template.html'
     DEF_TEMPLATE_DOCX = parent_folder / 'templates' / 'default_docx_template.yaml'
 
@@ -225,26 +225,83 @@ class DocGenCore:
         extra_args = []
         extra_args = self.get_pandoc_extra_args()
         
+        # Set intermediate format
+        is_intermediate = False
+        intermediate_format = self.output_format
+        if(self.output_format == DocGenFormats.PDF):
+            is_intermediate = True
+            intermediate_format = 'latex'
+        # TODO write this method
+        # intermediate_format = self.get_intermediate_format(self.output_format)
+
         try:
-            output = pypandoc.convert_file(input_file
-                , to=output_format
-                , outputfile=output_file
-                , extra_args=extra_args
-            )
-            logger.debug(f"Pandoc output: {output}")
+            if(self.output_format == DocGenFormats.PDF):
+                tex_file = self.output_dir / 'logs' / f"{input_file.stem}.tex"
+                # Step1: Generate .tex file
+                try:
+                    pypandoc.convert_file(
+                        input_file
+                        , to=intermediate_format
+                        , outputfile=tex_file
+                        , extra_args=extra_args
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to convert {input_file} to {intermediate_format}: {e}")
+                    sys.exit(1)
+                # Log the generated intermediate file
+                logger.debug(f"Generated intermediate file: {tex_file}")
+                
+                # Step2: Convert .tex file to PDF
+                try:
+                    pypandoc.convert_file(
+                        tex_file
+                        , to=self.output_format
+                        , outputfile=output_file
+                        , extra_args=extra_args
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to convert {tex_file} to {self.output_format}: {e}")
+                    sys.exit(1)
+                logger.info(f"Generated output file: {output_file}")
+            else:
+                # Convert directly to the output format
+                try:
+                    pypandoc.convert_file(
+                        input_file
+                        , to=self.output_format
+                        , outputfile=output_file
+                        , extra_args=extra_args
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to convert {input_file} to {self.output_format}: {e}")
+                    sys.exit(1)
+                logger.info(f"Generated output file: {output_file}")
         except Exception as e:
-            logger.error(f"Failed to convert {input_file} to {output_format}: {e}")
+            logger.error(f"An error occurred during conversion: {e}")
             sys.exit(1)
+
+        logger.info(f"Conversion completed. Output file: {output_file}")
+
+    def get_intermediate_format(self, output_format: str) -> str:
+        """Get the intermediate format for Pandoc conversion."""
+        # Pandoc supports various formats, but we will use Markdown as an intermediate format.
+        # This is because Pandoc can convert from Markdown to any other format.
+        if output_format  == DocGenFormats.PDF:
+            return 'latex'
+        elif output_format == DocGenFormats.HTML:
+            return 'html'
+        elif output_format == DocGenFormats.DOCX:
+            return 'docx'
         else:
-            logger.info(f"Conversion completed. Output file: {output_file}")
+            logger.error(f"Unsupported output format: {output_format}")
+            sys.exit(1)
 
     def generate_docgen_metadata_file(self, doc_metadata: dict=None):
         """Generate a consolidated metadata file for Pandoc."""
         logger.info(f"Generating consolidated metadata file: {self.docgen_metadata_file}")
         
         # Get Document arguments for Pandoc conversion
-        doc_args = doc_metadata #self.get_doc_args(metadata=doc_metadata)
-        
+        doc_args = doc_metadata
         # Get Pandoc metadata
         pandoc_args = self.get_pandoc_metadata()
         
@@ -253,7 +310,6 @@ class DocGenCore:
 
         # Combine both dicts
         consolidated_metadata = {**doc_args, **pandoc_args}
-
         # Dump the consolidated metadata to a YAML file
         DocGenCore.dump_yaml(consolidated_metadata, self.docgen_metadata_file)
     
@@ -263,6 +319,18 @@ class DocGenCore:
         
         # Get Pandoc metadata-file
         extra_args.append(f"--metadata-file={self.docgen_metadata_file}")
+        # Get Pandoc template file
+        if self.is_custom_template:
+            extra_args.append(f"--template={self.template_file}")
+        else:
+            # Use default template based on output format
+            if self.template_file is None:
+                if self.pandoc_cfg_file.suffix == '.pdf':
+                    extra_args.append(f"--template={DocGenCore.DEF_TEMPLATE_PDF}")
+                elif self.pandoc_cfg_file.suffix == '.html':
+                    extra_args.append(f"--template={DocGenCore.DEF_TEMPALTE_HTML}")
+                elif self.pandoc_cfg_file.suffix == '.docx':
+                    extra_args.append(f"--template={DocGenCore.DEF_TEMPLATE_DOCX}")
         return extra_args
 
     def get_doc_args(self, metadata: dict=None)-> dict:

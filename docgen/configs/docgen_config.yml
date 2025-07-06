@@ -1,6 +1,10 @@
 # DocGen default Pandoc metadata file
 #pandoc default metadata file
 
+# Default PDF configuration
+pdf-engine: xelatex
+standalone: true
+
 # toc
 toc: true
 toc-depth: 2
@@ -9,7 +13,11 @@ numbersections: true
 # geometry
 papersize: A4
 documentclass: report
-# geometry: margin=top=1in, bottom=1in, left=1in, right=1in
+geometry:
+  - top=0.8in
+  - bottom=0.8in
+  - left=0.8in
+  - right=0.8in
 
 
 colorlinks: true

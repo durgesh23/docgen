@@ -1,0 +1,40 @@
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\thepage}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\begin{document}
+
+$if(title)$
+\begin{center}
+  {\Huge $title$}
+\end{center}
+$endif$
+
+$if(author)$
+\begin{center}
+  {\large $author$}
+\end{center}
+$endif$
+
+$if(date)$
+\begin{center}
+  {\small $date$}
+\end{center}
+$endif$
+
+$if(toc)$
+\tableofcontents
+\newpage
+$endif$
+
+
+$body$
+
+\end{document}
