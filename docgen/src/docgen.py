@@ -4,6 +4,7 @@ import logging
 from ruamel.yaml import YAML
 from pathlib import Path
 import pypandoc
+import traceback
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -219,7 +220,7 @@ class DocGenCore:
         logger.info(f"Converting {input_file} to {output_format} format...")
 
         # Generate pandoc conslidated metadata yml file
-        self.generate_docgen_metadata_file(metadata)
+        self.dump_docgen_metadata_file(metadata)
 
         # Set Extra aruments
         extra_args = []
@@ -241,6 +242,7 @@ class DocGenCore:
                 try:
                     pypandoc.convert_file(
                         input_file
+                        , format=DocGenFormats.MARKDOWN
                         , to=intermediate_format
                         , outputfile=tex_file
                         , extra_args=extra_args
@@ -296,22 +298,6 @@ class DocGenCore:
             logger.error(f"Unsupported output format: {output_format}")
             sys.exit(1)
 
-    def generate_docgen_metadata_file(self, doc_metadata: dict=None):
-        """Generate a consolidated metadata file for Pandoc."""
-        logger.info(f"Generating consolidated metadata file: {self.docgen_metadata_file}")
-        
-        # Get Document arguments for Pandoc conversion
-        doc_args = doc_metadata
-        # Get Pandoc metadata
-        pandoc_args = self.get_pandoc_metadata()
-        
-        logger.debug(f"Document Args: {doc_args}")
-        logger.debug(f"Pandoc Args: {pandoc_args}")
-
-        # Combine both dicts
-        consolidated_metadata = {**doc_args, **pandoc_args}
-        # Dump the consolidated metadata to a YAML file
-        DocGenCore.dump_yaml(consolidated_metadata, self.docgen_metadata_file)
     
     def get_pandoc_extra_args(self) -> list:
         """ Generate additional arguments for Pandoc conversion."""
@@ -346,6 +332,23 @@ class DocGenCore:
 
         logger.debug(f"Doc Args: {extra_args}")
         return extra_args
+    
+    def dump_docgen_metadata_file(self, doc_metadata: dict=None):
+        """Generate a consolidated metadata file for Pandoc."""
+        logger.info(f"Generating consolidated metadata file: {self.docgen_metadata_file}")
+        
+        # Get Document arguments for Pandoc conversion
+        doc_args = doc_metadata
+        # Get Pandoc metadata
+        pandoc_args = self.get_pandoc_metadata()
+        
+        logger.debug(f"Document Args: {doc_args}")
+        logger.debug(f"Pandoc Args: {pandoc_args}")
+
+        # Combine both dicts
+        consolidated_metadata = {**doc_args, **pandoc_args}
+        # Dump the consolidated metadata to a YAML file
+        DocGenCore.dump_yaml(consolidated_metadata, self.docgen_metadata_file)
 
     def get_pandoc_metadata(self):
         """Parse Pandoc metadata from a YAML file."""
@@ -371,11 +374,11 @@ class DocGenCore:
         except FileNotFoundError:
             logger.error(f"YAML file not found: {yaml_file}")
             sys.exit(1)
-        except yaml.YAMLError as e:
-            logger.error(f"Invalid YAML syntax in {yaml_file}: {e}")
-            sys.exit(1)
         except Exception as e:
+            logger.error("Failed to parse YAML file: {yaml_file}")
             logger.error(f"Unexpected error parsing YAML file: {e}")
+            logger.error(f"Exception Type: {type(e).__name__}")
+            logger.error(f"Traceback:\n{traceback.format_exc()}")
             sys.exit(1)
 
     @staticmethod
@@ -400,6 +403,7 @@ class DocGenCore:
                 logger.info(f"Removed existing file: {output_file}")
             except OSError as e:
                 logger.error(f"Failed to remove existing file: {e}")
+                logger.error(traceback)
                 sys.exit(1)
         
         # Write the YAML content to the file

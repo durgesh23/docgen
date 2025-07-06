@@ -9,6 +9,8 @@ logger = logging.getLogger("DocGenMain")
 from src.docgen import DocGen
 
 # docgen/main.py
+LOG_FORMAT_DEBUG = '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
+LOG_FORMAT_INFO  = '%(name)s - %(levelname)s - %(message)s'
 
 def setup_logger(log_level=logging.INFO, log_file=None):
     """Configure and return logger."""
@@ -19,12 +21,17 @@ def setup_logger(log_level=logging.INFO, log_file=None):
     # Create console handler with a higher log level
     ch = logging.StreamHandler()
     ch.setLevel(log_level)
-
     # Create formatter and add it to the handler
-    formatter = logging.Formatter(
-        fmt='%(name)s  %(asctime)s - %(levelname)s - %(message)s'
-        , datefmt='%Y-%m-%d'
-    )
+    if(log_level == logging.DEBUG):
+        formatter = logging.Formatter(
+            fmt=LOG_FORMAT_DEBUG,
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+    else:
+        formatter = logging.Formatter(
+            fmt=LOG_FORMAT_INFO,
+            datefmt='%Y-%m-%d'
+        )
     ch.setFormatter(formatter)
 
     # Remove any existing handlers from root logger
@@ -110,10 +117,10 @@ def parse_arguments():
     
     # Advanced Usage
     parser.add_argument(
-        '-o', '--output',
-        type=str,
-        default= Path(os.getcwd()),
-        help='Output directory for generated document (default: cwd)'
+        '-o', '--output-dir',
+        type=Path,
+        default=Path(os.getcwd()),
+        help='Output directory for generated document (default: current working directory)'
     )
     parser.add_argument(
         '-p', '--pandoc-config-file',
@@ -155,17 +162,21 @@ def main(args=None):
         parser.print_help()
         sys.exit(2)
     
+    if(args.verbose):
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
 
     # Setup logger
-    logger = setup_logger(args.verbose  #and logging.DEBUG or logging.INFO
-                , log_file= args.output / 'logs' / 'docgen.log')
+    logger = setup_logger(log_level=log_level
+                , log_file= args.output_dir / 'logs' / 'docgen.log')
     
     logger.info("Starting documentation generation process...")
 
     # Create DocGen instance
     docgen = DocGen(input_file=args.input
         , output_format=args.format
-        , output_dir=args.output
+        , output_dir=args.output_dir
         , metadata_file=args.metadata_file
         , pandoc_config_file=args.pandoc_config_file
         , template_file=args.template_file
