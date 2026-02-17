@@ -43,11 +43,24 @@ docgen/
 - **Copyright page**: Auto-generated from `templates/copyright/copyright.md`
 - **Table of Contents**: Auto-generated with styled title
 - **Chapters**: H1 starts on new page with top spacing
-- **Headers/Footers**: Title, version, page numbers (in purple box), date
+- **Headers/Footers**: Odd/even page layout with chapter/section info, page numbers in purple box
+
+### Header Layout (Odd/Even Pages)
+- **Odd pages**: Left=chapter, Right=section
+- **Even pages**: Left=section, Right=chapter
+
+### Footer Layout (Odd/Even Pages)
+- **Odd pages**: Left=version+date, Center=Synopsys Inc., Right=page number (purple box)
+- **Even pages**: Left=page number (purple box), Center=Synopsys Inc., Right=version+date
 
 ### Page Settings (Current)
 - **Size**: LETTER (612x792 points)
-- **Margins**: 36pt all sides (~0.5 inch)
+- **Margins**: top/bottom 18pt (~0.25"), left/right 36pt (~0.5")
+
+### Page Number Box Design
+- **Shape**: Square purple box with line intersection at lower 25%
+- **Font**: 12pt bold white
+- **Background**: Synopsys purple (#5a428c)
 
 ### Accent Color
 - **Synopsys Purple**: `#5a428c` (extracted from logo)
@@ -64,7 +77,7 @@ docgen input.adoc -o output.pdf -t ford_release_notes --watch
 ### template.yaml - Key Settings
 ```yaml
 page:
-  margins: {top: 36, bottom: 36, left: 36, right: 36}
+  margins: {top: 18, bottom: 18, left: 36, right: 36}
 
 title_page:
   enabled: true
@@ -88,6 +101,9 @@ title_page_branding: {size: 12, color: "#000000"}
 title_page_title: {size: 24, color: "#000000"}
 heading1: {size: 14, color: "#5a428c", border_bottom: true}
 heading2: {size: 12, color: "#5a428c"}
+header_text: {size: 9, color: "#000000"}
+footer_text: {size: 8, color: "#000000"}
+page_number: {size: 12, color: "#FFFFFF", family: "Helvetica-Bold"}
 ```
 
 ## Sample PDF Reference
@@ -106,29 +122,24 @@ docgen examples/sample_release_notes.md -o examples/output/sample_release_notes.
 
 ## Recent Session Changes
 
-1. Fixed title page overflow - relative positioning system
-2. Added logo support with `_draw_image_element()`
-3. Added horizontal line support with `_draw_line_element()`
-4. Added copyright page from `templates/copyright/copyright.md`
-5. Added TOC page with styled title
-6. Added chapter styling (page breaks, top spacing)
-7. Updated accent color to Synopsys purple (#5a428c)
-8. Reduced margins from 72pt to 57pt to match sample
-9. Moved logo to top-left position
-10. Changed "Verification Continuum™" font size to 12pt, color to black
-11. Reduced spacing between branding and title
-12. Reduced all page margins to 36pt (~0.5 inch)
-13. Increased logo size to 180x41
-14. Updated all accent colors from navy blue (#000080) to Synopsys purple (#5a428c)
-15. Added purple box background for page numbers in footer
+1. Logo: top-left, 180x41
+2. Branding: "Verification Continuum™" 12pt black
+3. All accent colors: Synopsys purple (#5a428c)
+4. Odd/even page header/footer layout
+5. Footer: version+date (multiline), Synopsys Inc., page number
+6. Page number: square purple box, 12pt bold white, line intersects at 75%
+7. Header/footer text: black
+8. Page margins: 18pt top/bottom, 36pt left/right
+9. Per-element style support in footer
+10. Configurable intersect_position for page number box
 
 ## Key Files Modified
 
-- `src/docgen/renderers/pdf_renderer.py` - TitlePageFlowable with image/line support, footer background boxes
+- `src/docgen/renderers/pdf_renderer.py` - TitlePageFlowable, odd/even page logic, multiline text
 - `src/docgen/renderers/styles.py` - get_copyright_config(), get_chapter_config()
 - `templates/ford_release_notes/template.yaml` - Title page, margins, structure
 - `templates/ford_release_notes/styles.yaml` - Purple accent colors throughout
-- `templates/ford_release_notes/header_footer.yaml` - Purple lines, page number boxes
+- `templates/ford_release_notes/header_footer.yaml` - Odd/even page layouts, chapter/section variables
 - `templates/copyright/copyright.md` - Copyright template (new)
 
 ## TODO

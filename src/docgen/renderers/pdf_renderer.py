@@ -469,8 +469,17 @@ class PDFRenderer:
         canvas.setFont(font_name, font_size)
         canvas.setFillColor(font_color)
         
+        # Select elements based on odd/even page
+        is_odd_page = (doc.page % 2) == 1
+        if is_odd_page and 'odd_elements' in header_config:
+            elements = header_config.get('odd_elements', [])
+        elif not is_odd_page and 'even_elements' in header_config:
+            elements = header_config.get('even_elements', [])
+        else:
+            elements = header_config.get('elements', [])
+        
         # Process header elements
-        for element in header_config.get('elements', []):
+        for element in elements:
             if element.get('type') == 'text':
                 text = self._substitute_variables(element.get('content', ''))
                 position = element.get('position', 'left')
@@ -510,8 +519,20 @@ class PDFRenderer:
         canvas.setFont(font_name, font_size)
         canvas.setFillColor(font_color)
         
+        # Select elements based on odd/even page
+        is_odd_page = (doc.page % 2) == 1
+        if is_odd_page and 'odd_elements' in footer_config:
+            elements = footer_config.get('odd_elements', [])
+        elif not is_odd_page and 'even_elements' in footer_config:
+            elements = footer_config.get('even_elements', [])
+        else:
+            elements = footer_config.get('elements', [])
+        
+        # Calculate line position for alignment
+        line_y = y_pos + footer_height - 8  # Default margin_bottom
+        
         # Process footer elements
-        for element in footer_config.get('elements', []):
+        for element in elements:
             if element.get('type') == 'line':
                 line_y = y_pos + footer_height - element.get('margin_bottom', 5)
                 line_color = self._parse_color(element.get('color', '#000080'))
@@ -528,46 +549,90 @@ class PDFRenderer:
                 )
                 position = element.get('position', 'center')
                 
-                text_y = y_pos + 10
+                # Get element-specific style if defined
+                element_style_name = element.get('style', 'footer_text')
+                element_style = self.style_manager.get_font_config(element_style_name)
+                elem_font_name = element_style.get('family', font_name)
+                elem_font_size = element_style.get('size', font_size)
+                elem_font_color = self._parse_color(element_style.get('color', '#666666'))
+                
+                canvas.setFont(elem_font_name, elem_font_size)
                 
                 # Check for background box
                 background = element.get('background')
                 if background:
                     bg_color = self._parse_color(background.get('color', '#5a428c'))
                     padding = background.get('padding', 4)
-                    text_width = canvas.stringWidth(text, font_name, font_size)
+                    text_width = canvas.stringWidth(text, elem_font_name, elem_font_size)
+                    
+                    box_width = text_width + padding * 2
+                    box_height = elem_font_size + padding * 2
+                    
+                    # Make box square if requested
+                    if background.get('square', False):
+                        box_size = max(box_width, box_height)
+                        box_width = box_size
+                        box_height = box_size
+                    
+                    # Position box - if line_intersect is True, position box so line intersects
+                    if background.get('line_intersect', False):
+                        # intersect_position: 0.0 = top, 0.5 = center, 1.0 = bottom
+                        intersect_pos = background.get('intersect_position', 0.25)
+                        box_y = line_y - box_height * intersect_pos
+                    else:
+                        # Align box top with footer line
+                        box_y = line_y - box_height
+                    text_y = box_y + (box_height - elem_font_size) / 2
                     
                     # Calculate box position based on text position
                     if position == 'left':
-                        box_x = x_left - padding
+                        box_x = x_left
                     elif position == 'center':
-                        box_x = x_center - text_width / 2 - padding
+                        box_x = x_center - box_width / 2
                     elif position == 'right':
-                        box_x = x_right - text_width - padding
-                    
-                    box_y = text_y - padding
-                    box_width = text_width + padding * 2
-                    box_height = font_size + padding * 2
+                        box_x = x_right - box_width
                     
                     # Draw background box
                     canvas.setFillColor(bg_color)
                     canvas.rect(box_x, box_y, box_width, box_height, fill=1, stroke=0)
                     
-                    # Reset text color to white for visibility on purple background
+                    # Set text color
                     text_color = self._parse_color(background.get('text_color', '#FFFFFF'))
                     canvas.setFillColor(text_color)
+                    
+                    # Draw text centered in box
+                    text_x = box_x + (box_width - text_width) / 2
+                    canvas.drawString(text_x, text_y, text)
                 else:
-                    canvas.setFillColor(font_color)
+                    text_y = y_pos + 10
+                    canvas.setFillColor(elem_font_color)
                 
-                if position == 'left':
-                    canvas.drawString(x_left, text_y, text)
-                elif position == 'center':
-                    canvas.drawCentredString(x_center, text_y, text)
-                elif position == 'right':
-                    canvas.drawRightString(x_right, text_y, text)
+                    if position == 'left':
+                        if element.get('multiline') and '\n' in text:
+                            lines = text.split('\n')
+                            for i, line in enumerate(lines):
+                                canvas.drawString(x_left, text_y - (i * (elem_font_size + 2)), line)
+                        else:
+                            canvas.drawString(x_left, text_y, text)
+                    elif position == 'center':
+                        if element.get('multiline') and '\n' in text:
+                            lines = text.split('\n')
+                            for i, line in enumerate(lines):
+                                canvas.drawCentredString(x_center, text_y - (i * (elem_font_size + 2)), line)
+                        else:
+                            canvas.drawCentredString(x_center, text_y, text)
+                    elif position == 'right':
+                        if element.get('multiline') and '\n' in text:
+                            lines = text.split('\n')
+                            for i, line in enumerate(lines):
+                                canvas.drawRightString(x_right, text_y - (i * (elem_font_size + 2)), line)
+                        else:
+                            canvas.drawRightString(x_right, text_y, text)
     
     def _substitute_variables(self, text: str, page_number: int = 0) -> str:
         """Substitute template variables in text."""
+        from datetime import datetime
+        
         # Replace metadata variables
         for key, value in self._metadata.items():
             text = text.replace(f'{{{key}}}', str(value) if value else '')
@@ -575,6 +640,17 @@ class PDFRenderer:
         # Replace page number
         text = text.replace('{page_number}', str(page_number))
         text = text.replace('{total_pages}', str(page_number))  # Will be updated later
+        
+        # Replace date/time variables
+        now = datetime.now()
+        text = text.replace('{month}', now.strftime('%B'))
+        text = text.replace('{year}', now.strftime('%Y'))
+        
+        # Replace chapter and section variables (default empty if not set)
+        text = text.replace('{chapter_number}', self._metadata.get('chapter_number', ''))
+        text = text.replace('{chapter_name}', self._metadata.get('chapter_name', ''))
+        text = text.replace('{section_number}', self._metadata.get('section_number', ''))
+        text = text.replace('{section_name}', self._metadata.get('section_name', ''))
         
         return text
     

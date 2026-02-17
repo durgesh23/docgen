@@ -171,13 +171,19 @@ fonts:
   header_text:
     family: "Helvetica-Bold"
     size: 9
-    color: "#5a428c"
+    color: "#000000"
   
   # Footer text
   footer_text:
     family: "Helvetica"
     size: 8
-    color: "#666666"
+    color: "#000000"
+  
+  # Page number (larger font for visibility)
+  page_number:
+    family: "Helvetica-Bold"
+    size: 12
+    color: "#FFFFFF"
   
   # TOC entry
   toc_entry:

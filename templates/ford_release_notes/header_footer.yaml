@@ -4,7 +4,7 @@
 header:
   enabled: true
   height: 45               # Height in points
-  first_page: true         # Show on first page
+  first_page: false        # Don't show header on title page
   
   # Margins within header area
   padding:
@@ -13,22 +13,38 @@ header:
     left: 0
     right: 0
   
-  # Header elements
-  elements:
-    # Document title on the left
+  # Odd page header elements (page 1, 3, 5, ...)
+  odd_elements:
     - type: "text"
-      content: "{title}"
+      content: "{chapter_number}. {chapter_name}"
       position: "left"
       style: "header_text"
       max_width: 300
     
-    # Version on the right
     - type: "text"
-      content: "Version: {version}"
+      content: "{section_number} {section_name}"
       position: "right"
       style: "header_text"
     
-    # Separator line at bottom of header
+    - type: "line"
+      position: "bottom"
+      color: "#5a428c"
+      width: 1.5
+      margin_top: 8
+  
+  # Even page header elements (page 2, 4, 6, ...)
+  even_elements:
+    - type: "text"
+      content: "{section_number} {section_name}"
+      position: "left"
+      style: "header_text"
+      max_width: 300
+    
+    - type: "text"
+      content: "{chapter_number}. {chapter_name}"
+      position: "right"
+      style: "header_text"
+    
     - type: "line"
       position: "bottom"
       color: "#5a428c"
@@ -38,8 +54,8 @@ header:
 # Footer configuration
 footer:
   enabled: true
-  height: 40               # Height in points
-  first_page: true         # Show on first page
+  height: 50               # Height in points (increased for two lines)
+  first_page: false        # Don't show footer on title page
   
   # Margins within footer area
   padding:
@@ -48,39 +64,76 @@ footer:
     left: 0
     right: 0
   
-  # Footer elements
-  elements:
-    # Separator line at top of footer
+  # Odd page footer elements (page 1, 3, 5, ...)
+  odd_elements:
     - type: "line"
       position: "top"
       color: "#5a428c"
       width: 1
       margin_bottom: 8
     
-    # Confidentiality notice on the left
+    # Version and date on the left (two lines)
     - type: "text"
-      content: "{confidentiality}"
+      content: "Version {version}\n{month} {year}"
       position: "left"
       style: "footer_text"
+      multiline: true
     
-    # Page numbers in center with purple background box
+    # Synopsys, Inc. in middle
     - type: "text"
-      content: "Page {page_number} of {total_pages}"
+      content: "Synopsys, Inc."
       position: "center"
       style: "footer_text"
+    
+    # Page number on the right with purple box
+    - type: "text"
+      content: "{page_number}"
+      position: "right"
+      style: "page_number"
       background:
         color: "#5a428c"
         text_color: "#FFFFFF"
-        padding: 4
+        padding: 12
+        square: true
+        line_intersect: true
+        intersect_position: 0.75
+  
+  # Even page footer elements (page 2, 4, 6, ...)
+  even_elements:
+    - type: "line"
+      position: "top"
+      color: "#5a428c"
+      width: 1
+      margin_bottom: 8
     
-    # Date on the right
+    # Page number on the left with purple box
     - type: "text"
-      content: "{date}"
+      content: "{page_number}"
+      position: "left"
+      style: "page_number"
+      background:
+        color: "#5a428c"
+        text_color: "#FFFFFF"
+        padding: 12
+        square: true
+        line_intersect: true
+        intersect_position: 0.75
+    
+    # Synopsys, Inc. in middle
+    - type: "text"
+      content: "Synopsys, Inc."
+      position: "center"
+      style: "footer_text"
+    
+    # Version and date on the right (two lines)
+    - type: "text"
+      content: "Version {version}\n{month} {year}"
       position: "right"
       style: "footer_text"
+      multiline: true
 
 # Page numbering settings
 page_numbers:
   format: "numeric"        # numeric, roman, alpha
   start_from: 1
-  include_total: true
+  include_total: false

@@ -10,8 +10,8 @@ page:
   size: "LETTER"          # LETTER (8.5 x 11 inches)
   orientation: "portrait"
   margins:
-    top: 36               # ~0.5 inch
-    bottom: 36
+    top: 18               # ~0.25 inch
+    bottom: 18
     left: 36
     right: 36
 
