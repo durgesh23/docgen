@@ -1,7 +1,7 @@
 ---
-title: "ECG2 VECU Release Notes"
-version: "1.0.0"
-date: "2026-02-17"
+title: "Ford ECG2 VECU Release Notes"
+version: "R2.8.1"
+date: "February 2026"
 author: "Virtual ECU Engineering Team"
 confidentiality: "Ford Confidential"
 document_number: "VECU-RN-001"
