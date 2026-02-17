@@ -19,6 +19,31 @@ fonts:
     space_after: 24
     alignment: "center"
   
+  # Title page styles (matches Ford ECG2 VECU Release Notes)
+  title_page_branding:
+    family: "Helvetica-Oblique"
+    size: 14
+    color: "#666666"       # Gray
+    alignment: "center"
+  
+  title_page_title:
+    family: "Helvetica-Bold"
+    size: 28
+    color: "#000080"       # Navy blue
+    alignment: "center"
+  
+  title_page_version:
+    family: "Helvetica"
+    size: 16
+    color: "#333333"
+    alignment: "center"
+  
+  title_page_date:
+    family: "Helvetica"
+    size: 14
+    color: "#333333"
+    alignment: "center"
+  
   # Heading level 1
   heading1:
     family: "Helvetica-Bold"

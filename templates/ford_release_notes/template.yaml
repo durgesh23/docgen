@@ -17,9 +17,37 @@ page:
 
 # Document structure
 structure:
-  title_page: false       # No separate title page
+  title_page: true        # Generate a title page
   table_of_contents: true
   toc_depth: 2           # Include h1 and h2 in TOC
+
+# Title page configuration (matches Ford ECG2 VECU Release Notes style)
+title_page:
+  enabled: true
+  elements:
+    - type: "text"
+      content: "Verification Continuum™"
+      position: "top"
+      y_offset: 200        # Distance from top in points
+      style: "title_page_branding"
+    
+    - type: "text"
+      content: "{title}"
+      position: "center"
+      y_offset: 0          # Vertically centered
+      style: "title_page_title"
+    
+    - type: "text"
+      content: "Version {version}"
+      position: "center"
+      y_offset: -60        # Below center
+      style: "title_page_version"
+    
+    - type: "text"
+      content: "{date}"
+      position: "center"
+      y_offset: -100       # Below version
+      style: "title_page_date"
   
 # Metadata fields expected
 metadata_fields:

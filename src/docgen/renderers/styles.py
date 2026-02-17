@@ -191,6 +191,14 @@ class StyleManager:
         """Get footer configuration."""
         return self._header_footer_config.get('footer', {})
     
+    def get_title_page_config(self) -> Dict[str, Any]:
+        """Get title page configuration."""
+        return self._template_config.get('title_page', {})
+    
+    def get_structure_config(self) -> Dict[str, Any]:
+        """Get document structure configuration."""
+        return self._template_config.get('structure', {})
+    
     def get_margins(self) -> Tuple[float, float, float, float]:
         """Get page margins (top, right, bottom, left)."""
         page_config = self.get_page_config()

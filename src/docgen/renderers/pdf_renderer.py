@@ -30,7 +30,7 @@ from reportlab.platypus import (
     Image,
     Flowable,
 )
-from reportlab.platypus.doctemplate import PageTemplate, BaseDocTemplate, Frame
+from reportlab.platypus.doctemplate import PageTemplate, BaseDocTemplate, Frame, NextPageTemplate
 from reportlab.platypus.tableofcontents import TableOfContents
 
 from docgen.models import (
@@ -50,6 +50,116 @@ PAGE_SIZES = {
     'A4': A4,
     'LEGAL': LEGAL,
 }
+
+
+class TitlePageFlowable(Flowable):
+    """
+    Custom flowable for rendering a title page.
+    
+    Renders title page elements at specified positions matching
+    the Ford ECG2 VECU Release Notes style.
+    """
+    
+    def __init__(
+        self, 
+        width: float, 
+        height: float, 
+        config: dict, 
+        metadata: dict,
+        style_manager,
+        parse_color
+    ):
+        """
+        Initialize title page flowable.
+        
+        Args:
+            width: Available content width.
+            height: Available content height.
+            config: Title page configuration from template.
+            metadata: Document metadata for variable substitution.
+            style_manager: StyleManager instance.
+            parse_color: Color parsing function.
+        """
+        Flowable.__init__(self)
+        self.width = width
+        self.height = height
+        self.config = config
+        self.metadata = metadata
+        self.style_manager = style_manager
+        self._parse_color = parse_color
+    
+    def wrap(self, available_width, available_height):
+        """Return the size of this flowable - fit within available space."""
+        # Use the smaller of configured size or available space
+        actual_width = min(self.width, available_width)
+        actual_height = min(self.height, available_height)
+        return (actual_width, actual_height)
+    
+    def draw(self):
+        """Draw the title page elements."""
+        canvas = self.canv
+        
+        # Get elements from config
+        elements = self.config.get('elements', [])
+        
+        for element in elements:
+            if element.get('type') == 'text':
+                self._draw_text_element(canvas, element)
+    
+    def _draw_text_element(self, canvas, element: dict):
+        """Draw a text element on the title page."""
+        # Get content and substitute variables
+        content = element.get('content', '')
+        content = self._substitute_variables(content)
+        
+        # Get style
+        style_name = element.get('style', 'default')
+        font_config = self.style_manager.get_font_config(style_name)
+        
+        # Set font
+        font_name = font_config.get('family', 'Helvetica')
+        font_size = font_config.get('size', 12)
+        font_color = self._parse_color(font_config.get('color', '#000000'))
+        
+        canvas.setFont(font_name, font_size)
+        canvas.setFillColor(font_color)
+        
+        # Calculate position
+        position = element.get('position', 'center')
+        y_offset = element.get('y_offset', 0)
+        
+        # Calculate y position based on position type
+        if position == 'top':
+            y = self.height - y_offset
+        elif position == 'center':
+            y = self.height / 2 + y_offset
+        elif position == 'bottom':
+            y = y_offset
+        else:
+            y = self.height / 2 + y_offset
+        
+        # Calculate x position (center text)
+        alignment = font_config.get('alignment', 'center')
+        if alignment == 'center':
+            x = self.width / 2
+            canvas.drawCentredString(x, y, content)
+        elif alignment == 'left':
+            x = 0
+            canvas.drawString(x, y, content)
+        elif alignment == 'right':
+            x = self.width
+            canvas.drawRightString(x, y, content)
+        else:
+            x = self.width / 2
+            canvas.drawCentredString(x, y, content)
+    
+    def _substitute_variables(self, text: str) -> str:
+        """Substitute metadata variables in text."""
+        for key, value in self.metadata.items():
+            placeholder = '{' + key + '}'
+            if placeholder in text:
+                text = text.replace(placeholder, str(value) if value else '')
+        return text
 
 
 class NumberedCanvas:
@@ -152,8 +262,8 @@ class PDFRenderer:
         frame_width = self._page_size[0] - margins[1] - margins[3]
         frame_height = self._page_size[1] - margins[0] - margins[2] - header_height - footer_height
         
-        # Create frame
-        frame = Frame(
+        # Create main content frame (with space for header/footer)
+        main_frame = Frame(
             margins[3],  # x
             margins[2] + footer_height,  # y
             frame_width,
@@ -161,14 +271,39 @@ class PDFRenderer:
             id='main'
         )
         
-        # Create page template with header/footer
-        template = PageTemplate(
+        # Create main page template with header/footer
+        main_template = PageTemplate(
             id='main',
-            frames=[frame],
+            frames=[main_frame],
             onPage=lambda canvas, doc: self._draw_header_footer(canvas, doc)
         )
         
-        doc.addPageTemplates([template])
+        templates = [main_template]
+        
+        # Check if title page is enabled
+        title_page_config = self.style_manager.get_title_page_config()
+        if title_page_config.get('enabled', False):
+            # Create title page frame (full height, no header/footer space)
+            title_frame_height = self._page_size[1] - margins[0] - margins[2]
+            title_frame = Frame(
+                margins[3],  # x
+                margins[2],  # y
+                frame_width,
+                title_frame_height,
+                id='title_frame'
+            )
+            
+            # Create title page template without header/footer
+            title_template = PageTemplate(
+                id='title_page',
+                frames=[title_frame],
+                onPage=lambda canvas, doc: None  # No header/footer on title page
+            )
+            
+            # Insert title page template first
+            templates.insert(0, title_template)
+        
+        doc.addPageTemplates(templates)
         
         # Build story (content)
         story = self._build_story(document)
@@ -318,8 +453,13 @@ class PDFRenderer:
         """Build the document story (content flow)."""
         story = []
         
-        # Add document title if present
-        if self._metadata.get('title'):
+        # Add title page if enabled
+        title_page_flowables = self._build_title_page()
+        if title_page_flowables:
+            story.extend(title_page_flowables)
+        
+        # Add document title if present (and no title page)
+        elif self._metadata.get('title'):
             title_style = self.style_manager.get_style('title')
             story.append(Paragraph(self._metadata['title'], title_style))
             story.append(Spacer(1, 20))
@@ -330,6 +470,38 @@ class PDFRenderer:
             story.extend(flowables)
         
         return story
+    
+    def _build_title_page(self) -> List:
+        """Build the title page flowables."""
+        title_page_config = self.style_manager.get_title_page_config()
+        
+        if not title_page_config.get('enabled', False):
+            return []
+        
+        flowables = []
+        page_width, page_height = self._page_size
+        margins = self.style_manager.get_margins()
+        
+        # Calculate frame dimensions for title page (full height, no header/footer)
+        content_width = page_width - margins[1] - margins[3]
+        content_height = page_height - margins[0] - margins[2] - 20  # Safety margin
+        
+        # Create a custom flowable for the title page
+        title_page = TitlePageFlowable(
+            width=content_width,
+            height=content_height,
+            config=title_page_config,
+            metadata=self._metadata,
+            style_manager=self.style_manager,
+            parse_color=self._parse_color,
+        )
+        
+        flowables.append(title_page)
+        # NextPageTemplate must come before PageBreak to take effect
+        flowables.append(NextPageTemplate('main'))
+        flowables.append(PageBreak())
+        
+        return flowables
     
     def _render_element(self, element: DocumentElement) -> List:
         """Render a single document element to flowables."""
