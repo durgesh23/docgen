@@ -1,0 +1,175 @@
+= ECG2 VECU Technical Specification
+:version: 1.0.0
+:date: 2026-02-17
+:author: Virtual ECU Engineering Team
+:confidentiality: Ford Confidential
+:document_number: VECU-TS-001
+:revision: A
+
+== Introduction
+
+This document provides the technical specification for the ECG2 Virtual Electronic Control Unit (VECU) platform. The VECU enables software-in-the-loop (SIL) testing for automotive embedded systems.
+
+== System Architecture
+
+The VECU platform consists of the following major components:
+
+* *Core Simulation Engine* - Executes the target software
+* *Hardware Abstraction Layer* - Simulates ECU peripherals
+* *Communication Stack* - Handles bus communications
+* *Diagnostic Module* - Provides debugging and analysis
+
+=== Core Simulation Engine
+
+The core simulation engine provides:
+
+. Instruction-accurate ARM Cortex-R5 emulation
+. Multi-core synchronization support
+. Real-time scheduling capabilities
+. Memory protection unit simulation
+
+=== Communication Interfaces
+
+==== CAN Bus Support
+
+The VECU supports the following CAN configurations:
+
+|===
+|Feature |Specification
+
+|CAN versions
+|CAN 2.0A, CAN 2.0B, CAN FD
+
+|Maximum bitrate
+|8 Mbit/s (CAN FD)
+
+|Channels
+|Up to 8 independent channels
+
+|Buffer depth
+|256 messages per channel
+|===
+
+==== LIN Bus Support
+
+LIN bus features include:
+
+* LIN 2.1 specification compliance
+* Master and slave node simulation
+* Schedule table management
+* Event-triggered frame support
+
+== Performance Characteristics
+
+=== Timing Accuracy
+
+[source,text]
+----
+Timing Resolution: 1 nanosecond
+Clock Accuracy:    ±0.1 ppm
+Jitter:            < 100 ns typical
+Latency:           < 1 µs interrupt response
+----
+
+=== Resource Utilization
+
+|===
+|Resource |Typical Usage |Maximum Usage
+
+|CPU
+|40-60%
+|85%
+
+|Memory
+|1.2 GB
+|2.0 GB
+
+|Disk I/O
+|50 MB/s
+|200 MB/s
+|===
+
+== Configuration
+
+=== Environment Variables
+
+The following environment variables configure the VECU:
+
+VECU_HOME:: Installation directory path
+VECU_LOG_LEVEL:: Logging verbosity (DEBUG, INFO, WARN, ERROR)
+VECU_CONFIG:: Path to configuration file
+
+=== Configuration File Format
+
+Configuration files use YAML format:
+
+[source,yaml]
+----
+vecu:
+  cores: 4
+  memory: 2048  # MB
+  
+can:
+  channels:
+    - id: 0
+      bitrate: 500000
+    - id: 1
+      bitrate: 1000000
+----
+
+== API Reference
+
+=== Initialization Functions
+
+`vecu_init()`::
+    Initializes the VECU runtime environment.
+    Returns 0 on success, negative error code on failure.
+
+`vecu_shutdown()`::
+    Cleanly shuts down the VECU and releases resources.
+
+=== Communication Functions
+
+`can_send_message(channel, msg)`::
+    Transmits a CAN message on the specified channel.
+
+`can_receive_message(channel, timeout)`::
+    Receives a CAN message with optional timeout.
+
+== Important Notes
+
+NOTE: Always initialize the VECU before attempting to send or receive messages.
+
+TIP: For optimal performance, configure memory allocation before starting the simulation.
+
+WARNING: Exceeding the maximum buffer depth may result in message loss.
+
+CAUTION: Do not modify configuration files while the VECU is running.
+
+IMPORTANT: Back up your configuration before upgrading to a new VECU version.
+
+== Appendix A: Error Codes
+
+|===
+|Code |Name |Description
+
+|-1
+|VECU_ERR_INIT
+|Initialization failure
+
+|-2
+|VECU_ERR_CONFIG
+|Configuration error
+
+|-3
+|VECU_ERR_MEMORY
+|Memory allocation failure
+
+|-4
+|VECU_ERR_TIMEOUT
+|Operation timed out
+
+|-5
+|VECU_ERR_INVALID
+|Invalid parameter
+|===
