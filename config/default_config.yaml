@@ -1,0 +1,37 @@
+# Default Configuration for PDF Document Generator
+# This file contains global settings and defaults
+
+# Default template to use when none specified
+default_template: "ford_release_notes"
+
+# Default output directory (relative to current working directory)
+output_directory: "./output"
+
+# Default metadata values (can be overridden per document)
+defaults:
+  author: "Engineering Team"
+  confidentiality: "Confidential"
+  organization: "Synopsys"
+  
+# Supported input formats
+supported_formats:
+  - ".md"
+  - ".markdown"
+  - ".adoc"
+  - ".asciidoc"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: null  # Set to path for file logging
+
+# PDF generation settings
+pdf:
+  compress: true
+  embed_fonts: false
+  
+# Template directories to search (in order)
+template_paths:
+  - "./templates"
+  - "~/.docgen/templates"
