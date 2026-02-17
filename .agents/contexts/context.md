@@ -33,8 +33,8 @@ docgen/
 ## Features Implemented
 
 ### Title Page
-- **Logo**: Synopsys logo at top-right (150x34 display)
-- **Branding**: "Verification Continuum™" - 16pt, purple (#5a428c)
+- **Logo**: Synopsys logo at top-left (180x41 display)
+- **Branding**: "Verification Continuum™" - 12pt, black (#000000)
 - **Title**: Document title - 24pt, black
 - **Horizontal line**: After title, purple accent color
 - **Version/Date**: Bottom-right, 11pt
@@ -43,11 +43,11 @@ docgen/
 - **Copyright page**: Auto-generated from `templates/copyright/copyright.md`
 - **Table of Contents**: Auto-generated with styled title
 - **Chapters**: H1 starts on new page with top spacing
-- **Headers/Footers**: Title, version, page numbers, date
+- **Headers/Footers**: Title, version, page numbers (in purple box), date
 
 ### Page Settings (Current)
 - **Size**: LETTER (612x792 points)
-- **Margins**: 57pt all sides (~0.79 inch, matches sample PDF)
+- **Margins**: 36pt all sides (~0.5 inch)
 
 ### Accent Color
 - **Synopsys Purple**: `#5a428c` (extracted from logo)
@@ -64,12 +64,12 @@ docgen input.adoc -o output.pdf -t ford_release_notes --watch
 ### template.yaml - Key Settings
 ```yaml
 page:
-  margins: {top: 57, bottom: 57, left: 57, right: 57}
+  margins: {top: 36, bottom: 36, left: 36, right: 36}
 
 title_page:
   enabled: true
   elements:
-    - type: image (logo, top-right)
+    - type: image (logo, top-left)
     - type: text (branding, title)
     - type: line (horizontal separator)
     - type: text (version, date)
@@ -84,9 +84,10 @@ chapter:
 
 ### styles.yaml - Key Font Styles
 ```yaml
-title_page_branding: {size: 16, color: "#5a428c"}
+title_page_branding: {size: 12, color: "#000000"}
 title_page_title: {size: 24, color: "#000000"}
 heading1: {size: 14, color: "#5a428c", border_bottom: true}
+heading2: {size: 12, color: "#5a428c"}
 ```
 
 ## Sample PDF Reference
@@ -113,13 +114,21 @@ docgen examples/sample_release_notes.md -o examples/output/sample_release_notes.
 6. Added chapter styling (page breaks, top spacing)
 7. Updated accent color to Synopsys purple (#5a428c)
 8. Reduced margins from 72pt to 57pt to match sample
+9. Moved logo to top-left position
+10. Changed "Verification Continuum™" font size to 12pt, color to black
+11. Reduced spacing between branding and title
+12. Reduced all page margins to 36pt (~0.5 inch)
+13. Increased logo size to 180x41
+14. Updated all accent colors from navy blue (#000080) to Synopsys purple (#5a428c)
+15. Added purple box background for page numbers in footer
 
 ## Key Files Modified
 
-- `src/docgen/renderers/pdf_renderer.py` - TitlePageFlowable with image/line support
+- `src/docgen/renderers/pdf_renderer.py` - TitlePageFlowable with image/line support, footer background boxes
 - `src/docgen/renderers/styles.py` - get_copyright_config(), get_chapter_config()
 - `templates/ford_release_notes/template.yaml` - Title page, margins, structure
-- `templates/ford_release_notes/styles.yaml` - Purple accent colors
+- `templates/ford_release_notes/styles.yaml` - Purple accent colors throughout
+- `templates/ford_release_notes/header_footer.yaml` - Purple lines, page number boxes
 - `templates/copyright/copyright.md` - Copyright template (new)
 
 ## TODO

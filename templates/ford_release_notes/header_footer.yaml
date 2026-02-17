@@ -31,7 +31,7 @@ header:
     # Separator line at bottom of header
     - type: "line"
       position: "bottom"
-      color: "#000080"
+      color: "#5a428c"
       width: 1.5
       margin_top: 8
 
@@ -53,7 +53,7 @@ footer:
     # Separator line at top of footer
     - type: "line"
       position: "top"
-      color: "#000080"
+      color: "#5a428c"
       width: 1
       margin_bottom: 8
     
@@ -63,11 +63,15 @@ footer:
       position: "left"
       style: "footer_text"
     
-    # Page numbers in center
+    # Page numbers in center with purple background box
     - type: "text"
       content: "Page {page_number} of {total_pages}"
       position: "center"
       style: "footer_text"
+      background:
+        color: "#5a428c"
+        text_color: "#FFFFFF"
+        padding: 4
     
     # Date on the right
     - type: "text"

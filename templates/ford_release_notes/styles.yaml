@@ -14,7 +14,7 @@ fonts:
   title:
     family: "Helvetica-Bold"
     size: 20
-    color: "#000080"       # Navy blue
+    color: "#5a428c"       # Synopsys purple
     space_before: 0
     space_after: 24
     alignment: "center"
@@ -23,8 +23,8 @@ fonts:
   # Synopsys purple accent: #5a428c
   title_page_branding:
     family: "Helvetica-Oblique"
-    size: 16               # Smaller than title
-    color: "#5a428c"       # Synopsys purple
+    size: 12               # Smaller than title
+    color: "#000000"       # Black
     alignment: "left"
   
   title_page_title:
@@ -57,19 +57,19 @@ fonts:
   heading1:
     family: "Helvetica-Bold"
     size: 14
-    color: "#000080"
+    color: "#5a428c"
     space_before: 18
     space_after: 10
     alignment: "left"
     border_bottom: true
-    border_color: "#000080"
+    border_color: "#5a428c"
     border_width: 1
   
   # Heading level 2
   heading2:
     family: "Helvetica-Bold"
     size: 12
-    color: "#000080"
+    color: "#5a428c"
     space_before: 14
     space_after: 8
     alignment: "left"
@@ -171,7 +171,7 @@ fonts:
   header_text:
     family: "Helvetica-Bold"
     size: 9
-    color: "#000080"
+    color: "#5a428c"
   
   # Footer text
   footer_text:
@@ -189,12 +189,12 @@ fonts:
   toc_title:
     family: "Helvetica-Bold"
     size: 14
-    color: "#000080"
+    color: "#5a428c"
     space_after: 12
 
 # Color palette
 colors:
-  primary: "#000080"       # Navy blue - main accent color
+  primary: "#5a428c"       # Synopsys purple - main accent color
   secondary: "#333333"     # Dark gray - secondary text
   text: "#000000"          # Black - body text
   background: "#FFFFFF"    # White - page background
@@ -209,8 +209,8 @@ colors:
   highlight: "#FFFF00"
   
   # Line/border colors
-  header_line: "#000080"
-  footer_line: "#000080"
+  header_line: "#5a428c"
+  footer_line: "#5a428c"
 
 # Table styling
 tables:
@@ -231,7 +231,7 @@ lists:
 # Table of contents styling
 toc:
   font_family: "Helvetica"
-  title_color: "#000080"    # Navy blue for TOC title
+  title_color: "#5a428c"    # Synopsys purple for TOC title
   level1_size: 12
   level2_size: 11
   level3_size: 10

@@ -530,6 +530,35 @@ class PDFRenderer:
                 
                 text_y = y_pos + 10
                 
+                # Check for background box
+                background = element.get('background')
+                if background:
+                    bg_color = self._parse_color(background.get('color', '#5a428c'))
+                    padding = background.get('padding', 4)
+                    text_width = canvas.stringWidth(text, font_name, font_size)
+                    
+                    # Calculate box position based on text position
+                    if position == 'left':
+                        box_x = x_left - padding
+                    elif position == 'center':
+                        box_x = x_center - text_width / 2 - padding
+                    elif position == 'right':
+                        box_x = x_right - text_width - padding
+                    
+                    box_y = text_y - padding
+                    box_width = text_width + padding * 2
+                    box_height = font_size + padding * 2
+                    
+                    # Draw background box
+                    canvas.setFillColor(bg_color)
+                    canvas.rect(box_x, box_y, box_width, box_height, fill=1, stroke=0)
+                    
+                    # Reset text color to white for visibility on purple background
+                    text_color = self._parse_color(background.get('text_color', '#FFFFFF'))
+                    canvas.setFillColor(text_color)
+                else:
+                    canvas.setFillColor(font_color)
+                
                 if position == 'left':
                     canvas.drawString(x_left, text_y, text)
                 elif position == 'center':

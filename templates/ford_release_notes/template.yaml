@@ -10,10 +10,10 @@ page:
   size: "LETTER"          # LETTER (8.5 x 11 inches)
   orientation: "portrait"
   margins:
-    top: 57               # ~0.79 inch (matches sample PDF)
-    bottom: 57
-    left: 57
-    right: 57
+    top: 36               # ~0.5 inch
+    bottom: 36
+    left: 36
+    right: 36
 
 # Document structure
 structure:
@@ -26,34 +26,34 @@ structure:
 title_page:
   enabled: true
   elements:
-    # Synopsys logo at top-right
+    # Synopsys logo at top-left
     - type: "image"
       src: "snps_logo.png"
       position: "top"
       y_offset: 30
       x_offset: 0
-      alignment: "right"
-      width: 150
-      height: 34
+      alignment: "left"
+      width: 180
+      height: 41
     
-    # Branding: "Verification Continuum™" - smaller, purple accent color
+    # Branding: "Verification Continuum™" - smaller, black color
     - type: "text"
       content: "Verification Continuum™"
       position: "top"
-      y_offset: 100
+      y_offset: 120
       style: "title_page_branding"
     
     # Main title - larger, black color
     - type: "text"
       content: "{title}"
       position: "top"
-      y_offset: 140
+      y_offset: 145
       style: "title_page_title"
     
     # Horizontal line after title - using accent color
     - type: "line"
       position: "top"
-      y_offset: 175
+      y_offset: 180
       color: "#5a428c"
       width: 2
     
