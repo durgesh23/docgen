@@ -169,9 +169,9 @@ fonts:
   
   # Header text
   header_text:
-    family: "Helvetica-Bold"
+    family: "Helvetica"
     size: 9
-    color: "#000000"
+    color: "#5a428c"
   
   # Footer text
   footer_text:

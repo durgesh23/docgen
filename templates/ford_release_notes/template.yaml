@@ -10,8 +10,8 @@ page:
   size: "LETTER"          # LETTER (8.5 x 11 inches)
   orientation: "portrait"
   margins:
-    top: 18               # ~0.25 inch
-    bottom: 18
+    top: 12               # ~0.17 inch
+    bottom: 12
     left: 36
     right: 36
 
@@ -82,8 +82,13 @@ copyright:
 chapter:
   start_new_page: true    # Start each H1 on a new page
   top_spacing: 72          # 1 inch spacing at top of chapter
-  show_chapter_number: false
+  show_chapter_number: true
   title_style: "heading1"
+
+# Section numbering configuration
+section:
+  show_section_number: true
+  numbering_format: "1.1"    # Format: chapter.section (e.g., 1.1, 1.2, 2.1)
 
 # Metadata fields expected
 metadata_fields:

@@ -74,7 +74,7 @@ footer:
     
     # Version and date on the left (two lines)
     - type: "text"
-      content: "Version {version}\n{month} {year}"
+      content: "{version}\n{month} {year}"
       position: "left"
       style: "footer_text"
       multiline: true
@@ -90,6 +90,7 @@ footer:
       content: "{page_number}"
       position: "right"
       style: "page_number"
+      y_offset: 8
       background:
         color: "#5a428c"
         text_color: "#FFFFFF"
@@ -111,6 +112,7 @@ footer:
       content: "{page_number}"
       position: "left"
       style: "page_number"
+      y_offset: 8
       background:
         color: "#5a428c"
         text_color: "#FFFFFF"
@@ -127,7 +129,7 @@ footer:
     
     # Version and date on the right (two lines)
     - type: "text"
-      content: "Version {version}\n{month} {year}"
+      content: "{version}\n{month} {year}"
       position: "right"
       style: "footer_text"
       multiline: true
