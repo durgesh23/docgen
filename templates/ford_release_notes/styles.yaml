@@ -1,0 +1,236 @@
+# Ford Release Notes - Style Configuration
+# Typography, colors, and spacing definitions
+
+# Font definitions
+fonts:
+  # Default body text
+  default:
+    family: "Helvetica"
+    size: 10
+    color: "#000000"
+    leading: 14            # Line height in points
+  
+  # Document title (main title at top)
+  title:
+    family: "Helvetica-Bold"
+    size: 20
+    color: "#000080"       # Navy blue
+    space_before: 0
+    space_after: 24
+    alignment: "center"
+  
+  # Heading level 1
+  heading1:
+    family: "Helvetica-Bold"
+    size: 14
+    color: "#000080"
+    space_before: 18
+    space_after: 10
+    alignment: "left"
+    border_bottom: true
+    border_color: "#000080"
+    border_width: 1
+  
+  # Heading level 2
+  heading2:
+    family: "Helvetica-Bold"
+    size: 12
+    color: "#000080"
+    space_before: 14
+    space_after: 8
+    alignment: "left"
+  
+  # Heading level 3
+  heading3:
+    family: "Helvetica-Bold"
+    size: 11
+    color: "#333333"
+    space_before: 12
+    space_after: 6
+    alignment: "left"
+  
+  # Heading level 4
+  heading4:
+    family: "Helvetica-Bold"
+    size: 10
+    color: "#333333"
+    space_before: 10
+    space_after: 6
+    alignment: "left"
+  
+  # Paragraph text
+  paragraph:
+    family: "Helvetica"
+    size: 10
+    color: "#000000"
+    leading: 14
+    space_before: 0
+    space_after: 8
+    alignment: "left"
+  
+  # Bold text (inline)
+  bold:
+    family: "Helvetica-Bold"
+    size: 10
+    color: "#000000"
+  
+  # Italic text (inline)
+  italic:
+    family: "Helvetica-Oblique"
+    size: 10
+    color: "#000000"
+  
+  # Code/monospace (inline)
+  code:
+    family: "Courier"
+    size: 9
+    color: "#333333"
+    background: "#F5F5F5"
+  
+  # Code block
+  code_block:
+    family: "Courier"
+    size: 9
+    color: "#000000"
+    background: "#F5F5F5"
+    padding: 8
+    border: true
+    border_color: "#CCCCCC"
+  
+  # Table header
+  table_header:
+    family: "Helvetica-Bold"
+    size: 10
+    color: "#000000"
+    background: "#D0D0D0"
+    alignment: "left"
+    padding: 6
+  
+  # Table cell
+  table_cell:
+    family: "Helvetica"
+    size: 9
+    color: "#000000"
+    background: "#FFFFFF"
+    alignment: "left"
+    padding: 6
+  
+  # Table cell (alternate row)
+  table_cell_alt:
+    family: "Helvetica"
+    size: 9
+    color: "#000000"
+    background: "#F5F5F5"
+    alignment: "left"
+    padding: 6
+  
+  # List item
+  list_item:
+    family: "Helvetica"
+    size: 10
+    color: "#000000"
+    leading: 14
+    bullet_indent: 18
+    text_indent: 36
+  
+  # Header text
+  header_text:
+    family: "Helvetica-Bold"
+    size: 9
+    color: "#000080"
+  
+  # Footer text
+  footer_text:
+    family: "Helvetica"
+    size: 8
+    color: "#666666"
+  
+  # TOC entry
+  toc_entry:
+    family: "Helvetica"
+    size: 10
+    color: "#000000"
+  
+  # TOC title
+  toc_title:
+    family: "Helvetica-Bold"
+    size: 14
+    color: "#000080"
+    space_after: 12
+
+# Color palette
+colors:
+  primary: "#000080"       # Navy blue - main accent color
+  secondary: "#333333"     # Dark gray - secondary text
+  text: "#000000"          # Black - body text
+  background: "#FFFFFF"    # White - page background
+  
+  # Table colors
+  table_border: "#000000"
+  table_header_bg: "#D0D0D0"
+  table_alt_row: "#F5F5F5"
+  
+  # Accent colors
+  link: "#0066CC"
+  highlight: "#FFFF00"
+  
+  # Line/border colors
+  header_line: "#000080"
+  footer_line: "#000080"
+
+# Table styling
+tables:
+  border_width: 0.5
+  border_color: "#000000"
+  cell_padding: 6
+  header_background: "#D0D0D0"
+  alternate_rows: true
+  alternate_row_color: "#F5F5F5"
+  
+# List styling
+lists:
+  bullet_character: "•"
+  bullet_indent: 18
+  item_spacing: 4
+  nested_indent: 18
+
+# Table of contents styling
+toc:
+  font_family: "Helvetica"
+  level1_size: 12
+  level2_size: 11
+  level3_size: 10
+  indent_per_level: 20
+  show_page_numbers: true
+  dot_leader: true
+
+# Admonition styling
+admonitions:
+  note:
+    background: "#E7F3FF"
+    border: "#2196F3"
+    text: "#1565C0"
+  tip:
+    background: "#E8F5E9"
+    border: "#4CAF50"
+    text: "#2E7D32"
+  important:
+    background: "#FFF3E0"
+    border: "#FF9800"
+    text: "#E65100"
+  warning:
+    background: "#FFF8E1"
+    border: "#FFC107"
+    text: "#F57F17"
+  caution:
+    background: "#FFEBEE"
+    border: "#F44336"
+    text: "#C62828"
+  
+# Spacing
+spacing:
+  paragraph_after: 8
+  heading_before: 18
+  heading_after: 10
+  list_item: 4
+  section_break: 24

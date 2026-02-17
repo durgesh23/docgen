@@ -1,0 +1,38 @@
+# Ford Release Notes Template Configuration
+# Matches the style of Ford ECG2 VECU Release Notes
+
+name: "Ford Release Notes"
+version: "1.0"
+description: "Professional release notes format matching Ford ECG2 VECU Release Notes style"
+
+# Page settings
+page:
+  size: "LETTER"          # LETTER (8.5 x 11 inches)
+  orientation: "portrait"
+  margins:
+    top: 72               # 1 inch (72 points)
+    bottom: 72
+    left: 72
+    right: 72
+
+# Document structure
+structure:
+  title_page: false       # No separate title page
+  table_of_contents: true
+  toc_depth: 2           # Include h1 and h2 in TOC
+  
+# Metadata fields expected
+metadata_fields:
+  - title
+  - version
+  - date
+  - author
+  - confidentiality
+  - document_number
+  - revision
+
+# Content settings
+content:
+  hyphenation: false
+  justify: false          # Left-aligned text
+  first_line_indent: 0

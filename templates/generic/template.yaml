@@ -1,0 +1,35 @@
+# Generic Document Template Configuration
+# Clean, minimal template for general-purpose documents
+
+name: "Generic"
+version: "1.0"
+description: "Clean, general-purpose document template"
+
+# Page settings
+page:
+  size: "LETTER"
+  orientation: "portrait"
+  margins:
+    top: 72
+    bottom: 72
+    left: 72
+    right: 72
+
+# Document structure
+structure:
+  title_page: false
+  table_of_contents: false
+  toc_depth: 2
+
+# Metadata fields
+metadata_fields:
+  - title
+  - author
+  - date
+  - version
+
+# Content settings
+content:
+  hyphenation: false
+  justify: false
+  first_line_indent: 0

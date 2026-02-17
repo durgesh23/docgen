@@ -1,0 +1,202 @@
+# Generic Template - Style Configuration
+# Clean, minimal styling for general documents
+
+fonts:
+  default:
+    family: "Helvetica"
+    size: 11
+    color: "#000000"
+    leading: 15
+
+  title:
+    family: "Helvetica-Bold"
+    size: 24
+    color: "#333333"
+    space_before: 0
+    space_after: 20
+    alignment: "left"
+
+  heading1:
+    family: "Helvetica-Bold"
+    size: 18
+    color: "#333333"
+    space_before: 20
+    space_after: 10
+    alignment: "left"
+
+  heading2:
+    family: "Helvetica-Bold"
+    size: 14
+    color: "#333333"
+    space_before: 16
+    space_after: 8
+    alignment: "left"
+
+  heading3:
+    family: "Helvetica-Bold"
+    size: 12
+    color: "#333333"
+    space_before: 12
+    space_after: 6
+    alignment: "left"
+
+  heading4:
+    family: "Helvetica-Bold"
+    size: 11
+    color: "#333333"
+    space_before: 10
+    space_after: 6
+    alignment: "left"
+
+  paragraph:
+    family: "Helvetica"
+    size: 11
+    color: "#000000"
+    leading: 15
+    space_before: 0
+    space_after: 10
+    alignment: "left"
+
+  bold:
+    family: "Helvetica-Bold"
+    size: 11
+    color: "#000000"
+
+  italic:
+    family: "Helvetica-Oblique"
+    size: 11
+    color: "#000000"
+
+  code:
+    family: "Courier"
+    size: 10
+    color: "#333333"
+    background: "#F0F0F0"
+
+  code_block:
+    family: "Courier"
+    size: 10
+    color: "#000000"
+    background: "#F5F5F5"
+    padding: 10
+    border: true
+    border_color: "#DDDDDD"
+
+  table_header:
+    family: "Helvetica-Bold"
+    size: 10
+    color: "#000000"
+    background: "#E8E8E8"
+    alignment: "left"
+    padding: 8
+
+  table_cell:
+    family: "Helvetica"
+    size: 10
+    color: "#000000"
+    background: "#FFFFFF"
+    alignment: "left"
+    padding: 8
+
+  table_cell_alt:
+    family: "Helvetica"
+    size: 10
+    color: "#000000"
+    background: "#FAFAFA"
+    alignment: "left"
+    padding: 8
+
+  list_item:
+    family: "Helvetica"
+    size: 11
+    color: "#000000"
+    leading: 15
+    bullet_indent: 20
+    text_indent: 40
+
+  header_text:
+    family: "Helvetica"
+    size: 9
+    color: "#666666"
+
+  footer_text:
+    family: "Helvetica"
+    size: 9
+    color: "#666666"
+
+  toc_entry:
+    family: "Helvetica"
+    size: 11
+    color: "#000000"
+
+  toc_title:
+    family: "Helvetica-Bold"
+    size: 18
+    color: "#333333"
+    space_after: 14
+
+colors:
+  primary: "#333333"
+  secondary: "#666666"
+  text: "#000000"
+  background: "#FFFFFF"
+  table_border: "#CCCCCC"
+  table_header_bg: "#E8E8E8"
+  table_alt_row: "#FAFAFA"
+  link: "#0066CC"
+  header_line: "#CCCCCC"
+  footer_line: "#CCCCCC"
+
+tables:
+  border_width: 0.5
+  border_color: "#CCCCCC"
+  cell_padding: 8
+  header_background: "#E8E8E8"
+  alternate_rows: true
+  alternate_row_color: "#FAFAFA"
+
+lists:
+  bullet_character: "•"
+  bullet_indent: 20
+  item_spacing: 4
+  nested_indent: 20
+
+# Table of contents styling
+toc:
+  font_family: "Helvetica"
+  level1_size: 12
+  level2_size: 11
+  level3_size: 10
+  indent_per_level: 20
+  show_page_numbers: true
+  dot_leader: true
+
+# Admonition styling
+admonitions:
+  note:
+    background: "#E3F2FD"
+    border: "#2196F3"
+    text: "#1976D2"
+  tip:
+    background: "#E8F5E9"
+    border: "#4CAF50"
+    text: "#388E3C"
+  important:
+    background: "#FFF3E0"
+    border: "#FF9800"
+    text: "#F57C00"
+  warning:
+    background: "#FFFDE7"
+    border: "#FFEB3B"
+    text: "#F9A825"
+  caution:
+    background: "#FFEBEE"
+    border: "#F44336"
+    text: "#D32F2F"
+
+spacing:
+  paragraph_after: 10
+  heading_before: 20
+  heading_after: 10
+  list_item: 4
+  section_break: 24

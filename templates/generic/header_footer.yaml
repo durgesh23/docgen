@@ -1,0 +1,53 @@
+# Generic Template - Header and Footer Configuration
+
+header:
+  enabled: true
+  height: 35
+  first_page: false        # No header on first page
+
+  padding:
+    top: 5
+    bottom: 5
+    left: 0
+    right: 0
+
+  elements:
+    - type: "text"
+      content: "{title}"
+      position: "left"
+      style: "header_text"
+      max_width: 350
+
+    - type: "line"
+      position: "bottom"
+      color: "#CCCCCC"
+      width: 0.5
+      margin_top: 6
+
+footer:
+  enabled: true
+  height: 35
+  first_page: true
+
+  padding:
+    top: 5
+    bottom: 5
+    left: 0
+    right: 0
+
+  elements:
+    - type: "line"
+      position: "top"
+      color: "#CCCCCC"
+      width: 0.5
+      margin_bottom: 6
+
+    - type: "text"
+      content: "Page {page_number}"
+      position: "center"
+      style: "footer_text"
+
+page_numbers:
+  format: "numeric"
+  start_from: 1
+  include_total: false

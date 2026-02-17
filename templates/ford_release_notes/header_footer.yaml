@@ -1,0 +1,82 @@
+# Ford Release Notes - Header and Footer Configuration
+
+# Header configuration
+header:
+  enabled: true
+  height: 45               # Height in points
+  first_page: true         # Show on first page
+  
+  # Margins within header area
+  padding:
+    top: 5
+    bottom: 5
+    left: 0
+    right: 0
+  
+  # Header elements
+  elements:
+    # Document title on the left
+    - type: "text"
+      content: "{title}"
+      position: "left"
+      style: "header_text"
+      max_width: 300
+    
+    # Version on the right
+    - type: "text"
+      content: "Version: {version}"
+      position: "right"
+      style: "header_text"
+    
+    # Separator line at bottom of header
+    - type: "line"
+      position: "bottom"
+      color: "#000080"
+      width: 1.5
+      margin_top: 8
+
+# Footer configuration
+footer:
+  enabled: true
+  height: 40               # Height in points
+  first_page: true         # Show on first page
+  
+  # Margins within footer area
+  padding:
+    top: 5
+    bottom: 5
+    left: 0
+    right: 0
+  
+  # Footer elements
+  elements:
+    # Separator line at top of footer
+    - type: "line"
+      position: "top"
+      color: "#000080"
+      width: 1
+      margin_bottom: 8
+    
+    # Confidentiality notice on the left
+    - type: "text"
+      content: "{confidentiality}"
+      position: "left"
+      style: "footer_text"
+    
+    # Page numbers in center
+    - type: "text"
+      content: "Page {page_number} of {total_pages}"
+      position: "center"
+      style: "footer_text"
+    
+    # Date on the right
+    - type: "text"
+      content: "{date}"
+      position: "right"
+      style: "footer_text"
+
+# Page numbering settings
+page_numbers:
+  format: "numeric"        # numeric, roman, alpha
+  start_from: 1
+  include_total: true
