@@ -25,28 +25,32 @@ structure:
 title_page:
   enabled: true
   elements:
+    # Branding at top (y=596.8 in sample PDF - left aligned)
     - type: "text"
       content: "Verification Continuum™"
-      position: "top"
-      y_offset: 200        # Distance from top in points
+      position: "absolute"
+      y_offset: 597         # Page y coordinate
       style: "title_page_branding"
     
+    # Main title just below branding (y=567 in sample PDF - left aligned)
     - type: "text"
       content: "{title}"
-      position: "center"
-      y_offset: 0          # Vertically centered
+      position: "absolute"
+      y_offset: 567         # Page y coordinate
       style: "title_page_title"
     
+    # Version near bottom (y=157.8 in sample PDF - right aligned)
     - type: "text"
       content: "Version {version}"
-      position: "center"
-      y_offset: -60        # Below center
+      position: "absolute"
+      y_offset: 158         # Page y coordinate
       style: "title_page_version"
     
+    # Date below version (y=144.2 in sample PDF - right aligned)
     - type: "text"
       content: "{date}"
-      position: "center"
-      y_offset: -100       # Below version
+      position: "absolute"
+      y_offset: 144         # Page y coordinate
       style: "title_page_date"
   
 # Metadata fields expected

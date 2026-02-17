@@ -135,23 +135,49 @@ class TitlePageFlowable(Flowable):
             y = self.height / 2 + y_offset
         elif position == 'bottom':
             y = y_offset
+        elif position == 'absolute':
+            # Absolute page coordinates - use directly
+            # Note: Canvas in flowable's draw() is in page coordinates
+            y = y_offset
         else:
             y = self.height / 2 + y_offset
         
-        # Calculate x position (center text)
+        # Get page dimensions and margins
+        page_size_name = self.style_manager.page_size.upper()
+        page_dimensions = PAGE_SIZES.get(page_size_name, LETTER)
+        page_width = page_dimensions[0]
+        margins = self.style_manager.get_margins()
+        
+        # Calculate x position based on alignment
         alignment = font_config.get('alignment', 'center')
-        if alignment == 'center':
-            x = self.width / 2
-            canvas.drawCentredString(x, y, content)
-        elif alignment == 'left':
-            x = 0
-            canvas.drawString(x, y, content)
-        elif alignment == 'right':
-            x = self.width
-            canvas.drawRightString(x, y, content)
+        if position == 'absolute':
+            # For absolute positioning, use page coordinates
+            if alignment == 'center':
+                x = page_width / 2
+                canvas.drawCentredString(x, y, content)
+            elif alignment == 'left':
+                x = margins[3]  # Left margin
+                canvas.drawString(x, y, content)
+            elif alignment == 'right':
+                x = page_width - margins[1]  # Right margin
+                canvas.drawRightString(x, y, content)
+            else:
+                x = page_width / 2
+                canvas.drawCentredString(x, y, content)
         else:
-            x = self.width / 2
-            canvas.drawCentredString(x, y, content)
+            # Frame-relative positioning
+            if alignment == 'center':
+                x = self.width / 2
+                canvas.drawCentredString(x, y, content)
+            elif alignment == 'left':
+                x = 0
+                canvas.drawString(x, y, content)
+            elif alignment == 'right':
+                x = self.width
+                canvas.drawRightString(x, y, content)
+            else:
+                x = self.width / 2
+                canvas.drawCentredString(x, y, content)
     
     def _substitute_variables(self, text: str) -> str:
         """Substitute metadata variables in text."""
