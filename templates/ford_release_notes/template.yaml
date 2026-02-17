@@ -10,10 +10,10 @@ page:
   size: "LETTER"          # LETTER (8.5 x 11 inches)
   orientation: "portrait"
   margins:
-    top: 72               # 1 inch (72 points)
-    bottom: 72
-    left: 72
-    right: 72
+    top: 57               # ~0.79 inch (matches sample PDF)
+    bottom: 57
+    left: 57
+    right: 57
 
 # Document structure
 structure:
@@ -21,38 +21,70 @@ structure:
   table_of_contents: true
   toc_depth: 2           # Include h1 and h2 in TOC
 
-# Title page configuration (matches Ford ECG2 VECU Release Notes style)
+# Title page configuration (matches Ford ECG2 VECU Release Notes style exactly)
+# Synopsys purple accent: #5a428c
 title_page:
   enabled: true
   elements:
-    # Branding at top (y=596.8 in sample PDF - left aligned)
+    # Synopsys logo at top-right
+    - type: "image"
+      src: "snps_logo.png"
+      position: "top"
+      y_offset: 30
+      x_offset: 0
+      alignment: "right"
+      width: 150
+      height: 34
+    
+    # Branding: "Verification Continuum™" - smaller, purple accent color
     - type: "text"
       content: "Verification Continuum™"
-      position: "absolute"
-      y_offset: 597         # Page y coordinate
+      position: "top"
+      y_offset: 100
       style: "title_page_branding"
     
-    # Main title just below branding (y=567 in sample PDF - left aligned)
+    # Main title - larger, black color
     - type: "text"
       content: "{title}"
-      position: "absolute"
-      y_offset: 567         # Page y coordinate
+      position: "top"
+      y_offset: 140
       style: "title_page_title"
     
-    # Version near bottom (y=157.8 in sample PDF - right aligned)
+    # Horizontal line after title - using accent color
+    - type: "line"
+      position: "top"
+      y_offset: 175
+      color: "#5a428c"
+      width: 2
+    
+    # Version near bottom-right
     - type: "text"
       content: "Version {version}"
-      position: "absolute"
-      y_offset: 158         # Page y coordinate
+      position: "bottom"
+      y_offset: 66
       style: "title_page_version"
     
-    # Date below version (y=144.2 in sample PDF - right aligned)
+    # Date below version
     - type: "text"
       content: "{date}"
-      position: "absolute"
-      y_offset: 144         # Page y coordinate
+      position: "bottom"
+      y_offset: 52
       style: "title_page_date"
-  
+
+# Copyright page configuration
+copyright:
+  enabled: true
+  # Copyright content is read from templates/copyright/copyright.md
+  center_vertical: true
+  style: "copyright_text"
+
+# Chapter styling configuration
+chapter:
+  start_new_page: true    # Start each H1 on a new page
+  top_spacing: 72          # 1 inch spacing at top of chapter
+  show_chapter_number: false
+  title_style: "heading1"
+
 # Metadata fields expected
 metadata_fields:
   - title

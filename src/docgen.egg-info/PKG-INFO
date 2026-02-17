@@ -45,6 +45,11 @@ A flexible, template-based PDF document generator that converts Markdown (`.md`)
 - **Table Support**: Full table rendering with styling options
 - **Metadata Support**: Extract and use document metadata (title, version, date, etc.)
 - **CLI & API**: Use via command line or integrate into Python applications
+- **Watch Mode**: Auto-regenerate PDF when source files change
+- **Batch Processing**: Convert multiple files at once
+- **Image Support**: Embed images with automatic scaling
+- **Table of Contents**: Generate automatic TOC from document headings
+- **Admonitions**: Styled NOTE, TIP, WARNING, CAUTION, and IMPORTANT blocks
 
 ## Installation
 
@@ -91,6 +96,12 @@ docgen input.md -o output.pdf --template ford_release_notes \
 
 # List available templates
 docgen --list-templates
+
+# Watch mode - auto-regenerate on file changes
+docgen input.md -o output.pdf --watch
+
+# Batch processing - convert all files in a directory
+docgen --batch ./docs --output-dir ./pdfs
 
 # Show help
 docgen --help
@@ -190,7 +201,33 @@ This is the overview section with *bold* and _italic_ text.
 * Bullet point 2
 ** Nested bullet
 * Bullet point 3
+
+== Important Notes
+
+NOTE: This is an informational note.
+
+WARNING: This is a warning message.
+
+TIP: This is a helpful tip.
 ```
+
+### Admonitions (AsciiDoc)
+
+AsciiDoc supports special callout blocks for important information:
+
+```asciidoc
+NOTE: Informational message for users.
+
+TIP: Helpful hints and best practices.
+
+IMPORTANT: Critical information that must not be missed.
+
+WARNING: Indicates potential issues or caveats.
+
+CAUTION: Warns about dangerous or destructive actions.
+```
+
+These render as color-coded boxes in the PDF output.
 
 ## Templates
 
@@ -321,6 +358,44 @@ footer:
       position: "top"
       color: "#000080"
       width: 1
+```
+
+## CLI Reference
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--output` | `-o` | Output PDF file path |
+| `--template` | `-t` | Template to use (default: ford_release_notes) |
+| `--meta` | | Metadata key=value pairs (repeatable) |
+| `--list-templates` | | List available templates |
+| `--template-info` | | Show template details |
+| `--config` | | Path to configuration file |
+| `--debug` | | Enable debug output |
+| `--watch` | `-w` | Watch file for changes and auto-regenerate |
+| `--batch` | | Process all .md/.adoc files in directory |
+| `--output-dir` | | Output directory for batch processing |
+| `--version` | | Show version number |
+| `--help` | | Show help message |
+
+### Examples
+
+```bash
+# Watch mode - auto-regenerate on save
+docgen release_notes.md -o output.pdf --watch
+
+# Batch convert entire directory
+docgen --batch ./docs --output-dir ./pdfs --template generic
+
+# Override multiple metadata fields
+docgen input.md -o out.pdf \
+    --meta title="Custom Title" \
+    --meta version="2.0" \
+    --meta author="John Doe"
+
+# Use debug mode for troubleshooting
+docgen input.md -o output.pdf --debug
 ```
 
 ## Configuration
@@ -526,6 +601,12 @@ A: Check that your Markdown tables follow the standard format with proper column
 **Q: AsciiDoc parsing fails**
 A: Ensure `asciidoctor` is installed: `gem install asciidoctor`
 
+**Q: Watch mode isn't detecting changes**
+A: The watch mode polls every 1 second. Ensure the file is being saved and not just modified in a buffer.
+
+**Q: Images aren't appearing in the PDF**
+A: Check that image paths are relative to the input document or use absolute paths. Supported formats: PNG, JPEG, GIF.
+
 ### Logging
 
 Enable debug logging for troubleshooting:
@@ -554,7 +635,17 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### v1.0.0 (2026-02-17)
+### v1.1.0 (2026-02-17)
+- **Watch Mode**: Auto-regenerate PDF when source files change (`--watch` / `-w`)
+- **Batch Processing**: Convert multiple files at once (`--batch` / `--output-dir`)
+- **Image Support**: Embed images with automatic scaling and captions
+- **Table of Contents**: Generate automatic TOC from document headings
+- **Admonitions**: Styled NOTE, TIP, WARNING, CAUTION, and IMPORTANT blocks
+- Added TOC configuration to templates
+- Added admonition color styling to templates
+- New tests for all new features (115 total tests)
+
+### v1.0.0 (2026-02-15)
 - Initial release
 - Markdown and AsciiDoc support
 - Ford Release Notes template

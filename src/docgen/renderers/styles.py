@@ -195,6 +195,18 @@ class StyleManager:
         """Get title page configuration."""
         return self._template_config.get('title_page', {})
     
+    def get_copyright_config(self) -> Dict[str, Any]:
+        """Get copyright page configuration."""
+        return self._template_config.get('copyright', {'enabled': True})
+    
+    def get_chapter_config(self) -> Dict[str, Any]:
+        """Get chapter styling configuration."""
+        return self._template_config.get('chapter', {
+            'start_new_page': True,
+            'show_chapter_number': False,
+            'title_style': 'heading1'
+        })
+    
     def get_structure_config(self) -> Dict[str, Any]:
         """Get document structure configuration."""
         return self._template_config.get('structure', {})

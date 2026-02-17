@@ -19,30 +19,39 @@ fonts:
     space_after: 24
     alignment: "center"
   
-  # Title page styles (matches Ford ECG2 VECU Release Notes)
+  # Title page styles
+  # Synopsys purple accent: #5a428c
   title_page_branding:
     family: "Helvetica-Oblique"
-    size: 14
-    color: "#666666"       # Gray
+    size: 16               # Smaller than title
+    color: "#5a428c"       # Synopsys purple
     alignment: "left"
   
   title_page_title:
     family: "Helvetica-Bold"
-    size: 28
-    color: "#000080"       # Navy blue
+    size: 24               # Larger than branding
+    color: "#000000"       # Black
     alignment: "left"
   
   title_page_version:
     family: "Helvetica"
-    size: 16
+    size: 11
     color: "#333333"
     alignment: "right"
   
   title_page_date:
     family: "Helvetica"
-    size: 14
+    size: 11
     color: "#333333"
     alignment: "right"
+  
+  # Copyright page text
+  copyright_text:
+    family: "Helvetica"
+    size: 9
+    color: "#333333"
+    alignment: "center"
+    leading: 14
   
   # Heading level 1
   heading1:
@@ -222,6 +231,7 @@ lists:
 # Table of contents styling
 toc:
   font_family: "Helvetica"
+  title_color: "#000080"    # Navy blue for TOC title
   level1_size: 12
   level2_size: 11
   level3_size: 10

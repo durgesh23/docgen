@@ -6,184 +6,125 @@
 
 ## Project Overview
 
-DocGen is a Python-based PDF document generator that converts Markdown and AsciiDoc documents into professionally styled PDFs. The tool is designed to generate Ford-style release notes and technical documentation.
+DocGen is a Python-based PDF document generator that converts Markdown and AsciiDoc documents into professionally styled PDFs. The tool is designed to generate Synopsys-style release notes and technical documentation.
 
 ## Architecture
 
 ```
 docgen/
 ├── src/docgen/
-│   ├── __init__.py
 │   ├── cli.py              # Click-based CLI
 │   ├── generator.py        # Main document generator
 │   ├── models.py           # Document data models
-│   ├── parsers/
-│   │   ├── base.py         # Base parser interface
-│   │   ├── markdown_parser.py
-│   │   └── asciidoc_parser.py
-│   ├── renderers/
-│   │   ├── pdf_renderer.py # ReportLab PDF rendering
-│   │   └── styles.py       # Style management
-│   └── utils/
-│       └── helpers.py      # Utility functions
+│   ├── parsers/            # Markdown & AsciiDoc parsers
+│   └── renderers/
+│       ├── pdf_renderer.py # ReportLab PDF rendering
+│       └── styles.py       # Style management
 ├── templates/
 │   ├── ford_release_notes/ # Ford ECG2 VECU style
-│   │   ├── template.yaml
-│   │   ├── styles.yaml
-│   │   └── header_footer.yaml
-│   └── generic/
-│       ├── template.yaml
-│       ├── styles.yaml
-│       └── header_footer.yaml
+│   ├── generic/            # Basic style
+│   ├── copyright/          # Copyright page content
+│   │   └── copyright.md
+│   └── logos/
+│       └── snps_logo.png   # Synopsys logo (642x146)
 └── tests/                  # 115 tests
 ```
 
 ## Features Implemented
 
-### Core Features
-- [x] Markdown parsing with YAML front matter
-- [x] AsciiDoc parsing support
-- [x] PDF generation using ReportLab
-- [x] Template-based styling (YAML configuration)
-- [x] Headers and footers with page numbers
-- [x] Tables with styling
-- [x] Ordered and unordered lists (nested)
-- [x] Code blocks with syntax highlighting
-- [x] Blockquotes
-- [x] Horizontal rules
+### Title Page
+- **Logo**: Synopsys logo at top-right (150x34 display)
+- **Branding**: "Verification Continuum™" - 16pt, purple (#5a428c)
+- **Title**: Document title - 24pt, black
+- **Horizontal line**: After title, purple accent color
+- **Version/Date**: Bottom-right, 11pt
 
-### Advanced Features
-- [x] **Image rendering** - Inline and block images with sizing
-- [x] **Table of Contents (TOC)** - Auto-generated with configurable depth
-- [x] **Watch mode** - Auto-regenerate on file changes (`--watch`)
-- [x] **Batch processing** - Process multiple files (`--batch`)
-- [x] **Admonitions** - NOTE, WARNING, TIP, IMPORTANT, CAUTION blocks
-- [x] **Title page** - Professional title page matching Ford ECG2 VECU style
+### Document Structure
+- **Copyright page**: Auto-generated from `templates/copyright/copyright.md`
+- **Table of Contents**: Auto-generated with styled title
+- **Chapters**: H1 starts on new page with top spacing
+- **Headers/Footers**: Title, version, page numbers, date
 
-### Title Page Features
-- Verification Continuum™ branding (top-left)
-- Document title (left-aligned)
-- Version number (bottom-right)
-- Date (bottom-right)
-- No header/footer on title page
-- Absolute positioning matching sample PDF coordinates
+### Page Settings (Current)
+- **Size**: LETTER (612x792 points)
+- **Margins**: 57pt all sides (~0.79 inch, matches sample PDF)
+
+### Accent Color
+- **Synopsys Purple**: `#5a428c` (extracted from logo)
 
 ## CLI Usage
 
 ```bash
-# Basic usage
-docgen input.md -o output.pdf
-
-# With template
 docgen input.md -o output.pdf -t ford_release_notes
-
-# With metadata override
-docgen input.md -o output.pdf --meta 'title=My Doc' --meta 'version=1.0'
-
-# Watch mode
-docgen input.md -o output.pdf --watch
-
-# Batch processing
-docgen input_dir/ --batch --output-dir output_dir/
+docgen input.adoc -o output.pdf -t ford_release_notes --watch
 ```
 
-## Templates
+## Configuration Files
 
-### ford_release_notes
-- Matches Ford ECG2 VECU Release Notes style
-- Letter size (8.5" x 11")
-- 1-inch margins
-- Navy blue headings
-- Professional header/footer with:
-  - Document title and version
-  - "Ford Confidential" notice
-  - Page numbers (Page X of Y)
-  - Date
-
-### generic
-- Clean, minimal style
-- Suitable for general documentation
-
-## Metadata (YAML Front Matter)
-
+### template.yaml - Key Settings
 ```yaml
----
-title: "Ford ECG2 VECU Release Notes"
-version: "R2.8.1"
-date: "February 2026"
-author: "Engineering Team"
-confidentiality: "Ford Confidential"
-document_number: "VECU-RN-001"
-revision: "A"
----
+page:
+  margins: {top: 57, bottom: 57, left: 57, right: 57}
+
+title_page:
+  enabled: true
+  elements:
+    - type: image (logo, top-right)
+    - type: text (branding, title)
+    - type: line (horizontal separator)
+    - type: text (version, date)
+
+copyright:
+  enabled: true
+
+chapter:
+  start_new_page: true
+  top_spacing: 72
 ```
 
-## Test Coverage
-
-- **115 tests** across all modules
-- Tests located in `tests/` directory
-- Run with: `pytest tests/ -q`
-
-## Git History (Recent Commits)
-
-| Commit | Description |
-|--------|-------------|
-| 8b48e2d | Update example to match Ford ECG2 VECU Release Notes format |
-| f164d42 | Update title page positioning to match sample PDF exactly |
-| ab91c30 | Add title page support with branding, title, version, and date |
-| ec22b63 | Add project configuration and build files |
-| 18bd4ab | Add example documents and generated output |
-| 7988e05 | Add comprehensive test suite (115 tests) |
-| 1afc9b7 | Add PDF templates: ford_release_notes and generic |
-| b0ae530 | Add utility helpers and package metadata |
-| e152f47 | Add PDF renderer with ReportLab |
-| cb6df6a | Add Markdown and AsciiDoc parsers |
-| 82f681b | Add core docgen module with models, generator, and CLI |
-
-## Dependencies
-
-- **reportlab** - PDF generation
-- **pyyaml** - YAML parsing
-- **click** - CLI framework
-- **watchdog** - File watching (for --watch mode)
-- **pypdf** - PDF reading (for testing)
-
-## Sample Output
-
-Title page renders as:
-```
-Verification Continuum™
-Ford ECG2 VECU Release Notes
-                                        Version R2.8.1
-                                        February 2026
+### styles.yaml - Key Font Styles
+```yaml
+title_page_branding: {size: 16, color: "#5a428c"}
+title_page_title: {size: 24, color: "#000000"}
+heading1: {size: 14, color: "#5a428c", border_bottom: true}
 ```
 
-Content pages include header/footer:
+## Sample PDF Reference
+
+From `sample/Ford_ECG2_VECU_ReleaseNotes.pdf`:
+- Title page text positions: y=596.8 (branding), y=567 (title), y=157.8 (version), y=144.2 (date)
+- Left margin: x=56.7 (~57pt)
+- Logo: 642x146 pixels
+
+## Test Commands
+
+```bash
+pytest tests/ -q                    # Run all 115 tests
+docgen examples/sample_release_notes.md -o examples/output/sample_release_notes.pdf -t ford_release_notes
 ```
-┌────────────────────────────────────────────────────────┐
-│ Ford ECG2 VECU Release Notes        Version: R2.8.1   │
-│ ────────────────────────────────────────────────────── │
-│                                                        │
-│                      [Content]                         │
-│                                                        │
-│ ────────────────────────────────────────────────────── │
-│ Ford Confidential              Page 2 of 5  Feb 2026  │
-└────────────────────────────────────────────────────────┘
-```
 
-## Next Steps / TODO
+## Recent Session Changes
 
-- [ ] Add logo/image support on title page
-- [ ] Support custom fonts (TTF/OTF)
-- [ ] Add watermark support
-- [ ] Export to additional formats (HTML, DOCX)
-- [ ] Add section numbering option
-- [ ] Improve TOC styling with dot leaders
+1. Fixed title page overflow - relative positioning system
+2. Added logo support with `_draw_image_element()`
+3. Added horizontal line support with `_draw_line_element()`
+4. Added copyright page from `templates/copyright/copyright.md`
+5. Added TOC page with styled title
+6. Added chapter styling (page breaks, top spacing)
+7. Updated accent color to Synopsys purple (#5a428c)
+8. Reduced margins from 72pt to 57pt to match sample
 
-## Files Modified in Session
+## Key Files Modified
 
-1. `src/docgen/renderers/pdf_renderer.py` - Added TitlePageFlowable, absolute positioning
-2. `src/docgen/renderers/styles.py` - Added get_title_page_config(), get_structure_config()
-3. `templates/ford_release_notes/template.yaml` - Added title_page configuration
-4. `templates/ford_release_notes/styles.yaml` - Added title_page_* styles
-5. `examples/sample_release_notes.md` - Updated front matter to match sample
+- `src/docgen/renderers/pdf_renderer.py` - TitlePageFlowable with image/line support
+- `src/docgen/renderers/styles.py` - get_copyright_config(), get_chapter_config()
+- `templates/ford_release_notes/template.yaml` - Title page, margins, structure
+- `templates/ford_release_notes/styles.yaml` - Purple accent colors
+- `templates/copyright/copyright.md` - Copyright template (new)
+
+## TODO
+
+- [ ] Custom fonts (TTF/OTF)
+- [ ] Watermarks
+- [ ] TOC dot leaders/page numbers
+- [ ] Section numbering

@@ -67,7 +67,8 @@ class TitlePageFlowable(Flowable):
         config: dict, 
         metadata: dict,
         style_manager,
-        parse_color
+        parse_color,
+        template_dir: str = None
     ):
         """
         Initialize title page flowable.
@@ -79,6 +80,7 @@ class TitlePageFlowable(Flowable):
             metadata: Document metadata for variable substitution.
             style_manager: StyleManager instance.
             parse_color: Color parsing function.
+            template_dir: Path to template directory for loading logos.
         """
         Flowable.__init__(self)
         self.width = width
@@ -87,6 +89,7 @@ class TitlePageFlowable(Flowable):
         self.metadata = metadata
         self.style_manager = style_manager
         self._parse_color = parse_color
+        self.template_dir = Path(template_dir) if template_dir else None
     
     def wrap(self, available_width, available_height):
         """Return the size of this flowable - fit within available space."""
@@ -103,8 +106,13 @@ class TitlePageFlowable(Flowable):
         elements = self.config.get('elements', [])
         
         for element in elements:
-            if element.get('type') == 'text':
+            elem_type = element.get('type')
+            if elem_type == 'text':
                 self._draw_text_element(canvas, element)
+            elif elem_type == 'image':
+                self._draw_image_element(canvas, element)
+            elif elem_type == 'line':
+                self._draw_line_element(canvas, element)
     
     def _draw_text_element(self, canvas, element: dict):
         """Draw a text element on the title page."""
@@ -124,60 +132,141 @@ class TitlePageFlowable(Flowable):
         canvas.setFont(font_name, font_size)
         canvas.setFillColor(font_color)
         
-        # Calculate position
+        # Calculate position using relative positioning
+        # Position types: top, center, bottom, absolute_top, absolute_bottom
         position = element.get('position', 'center')
         y_offset = element.get('y_offset', 0)
         
-        # Calculate y position based on position type
+        # Get margins for bounds checking
+        margins = self.style_manager.get_margins()
+        min_y = 20  # Minimum distance from bottom (within frame)
+        max_y = self.height - 20  # Maximum distance from top (within frame)
+        
+        # Calculate y position - all positions are relative to the flowable frame
+        if position == 'top':
+            # Position from top of content area
+            y = self.height - y_offset
+        elif position == 'center':
+            y = self.height / 2 + y_offset
+        elif position == 'bottom':
+            # Position from bottom of content area
+            y = y_offset + 20  # Add padding from bottom
+        elif position == 'absolute_top':
+            # Percentage from top (0-100)
+            y = self.height * (1 - y_offset / 100.0)
+        elif position == 'absolute_bottom':
+            # Percentage from bottom (0-100)
+            y = self.height * (y_offset / 100.0)
+        else:
+            # Default: use y_offset as direct frame coordinate
+            y = y_offset
+        
+        # Clamp y to valid range to prevent overflow
+        y = max(min_y, min(max_y, y))
+        
+        # Get content area width
+        content_width = self.width
+        
+        # Calculate x position based on alignment
+        alignment = font_config.get('alignment', 'center')
+        
+        if alignment == 'center':
+            x = content_width / 2
+            canvas.drawCentredString(x, y, content)
+        elif alignment == 'left':
+            x = 0
+            canvas.drawString(x, y, content)
+        elif alignment == 'right':
+            x = content_width
+            canvas.drawRightString(x, y, content)
+        else:
+            x = content_width / 2
+            canvas.drawCentredString(x, y, content)
+    
+    def _draw_image_element(self, canvas, element: dict):
+        """Draw an image element on the title page (e.g., logo)."""
+        # Get image path - try template logos directory first
+        src = element.get('src', '')
+        img_path = None
+        
+        if self.template_dir:
+            # Check in template's logos directory
+            logos_dir = self.template_dir.parent / 'logos'
+            potential_path = logos_dir / src
+            if potential_path.exists():
+                img_path = potential_path
+        
+        if not img_path:
+            # Try as absolute/relative path
+            potential_path = Path(src)
+            if potential_path.exists():
+                img_path = potential_path
+        
+        if not img_path or not img_path.exists():
+            return  # Skip if image not found
+        
+        # Get image dimensions
+        img_width = element.get('width', 150)
+        img_height = element.get('height', None)
+        
+        # Calculate position
+        position = element.get('position', 'top')
+        y_offset = element.get('y_offset', 0)
+        x_offset = element.get('x_offset', 0)
+        alignment = element.get('alignment', 'right')
+        
+        # Calculate y position
+        if position == 'top':
+            y = self.height - y_offset - (img_height or 50)
+        elif position == 'center':
+            y = self.height / 2 + y_offset - (img_height or 50) / 2
+        elif position == 'bottom':
+            y = y_offset
+        else:
+            y = self.height - y_offset - (img_height or 50)
+        
+        # Calculate x position
+        if alignment == 'left':
+            x = x_offset
+        elif alignment == 'center':
+            x = (self.width - img_width) / 2 + x_offset
+        elif alignment == 'right':
+            x = self.width - img_width - x_offset
+        else:
+            x = self.width - img_width - x_offset
+        
+        # Draw the image
+        try:
+            canvas.drawImage(str(img_path), x, y, width=img_width, height=img_height, preserveAspectRatio=True, anchor='sw')
+        except Exception:
+            pass  # Silently skip if image can't be loaded
+    
+    def _draw_line_element(self, canvas, element: dict):
+        """Draw a horizontal line element on the title page."""
+        # Get line properties
+        line_color = self._parse_color(element.get('color', '#000000'))
+        line_width = element.get('width', 1)
+        
+        # Calculate position
+        position = element.get('position', 'top')
+        y_offset = element.get('y_offset', 0)
+        
+        # Calculate y position
         if position == 'top':
             y = self.height - y_offset
         elif position == 'center':
             y = self.height / 2 + y_offset
         elif position == 'bottom':
-            y = y_offset
-        elif position == 'absolute':
-            # Absolute page coordinates - use directly
-            # Note: Canvas in flowable's draw() is in page coordinates
-            y = y_offset
+            y = y_offset + 20
         else:
-            y = self.height / 2 + y_offset
+            y = self.height - y_offset
         
-        # Get page dimensions and margins
-        page_size_name = self.style_manager.page_size.upper()
-        page_dimensions = PAGE_SIZES.get(page_size_name, LETTER)
-        page_width = page_dimensions[0]
-        margins = self.style_manager.get_margins()
-        
-        # Calculate x position based on alignment
-        alignment = font_config.get('alignment', 'center')
-        if position == 'absolute':
-            # For absolute positioning, use page coordinates
-            if alignment == 'center':
-                x = page_width / 2
-                canvas.drawCentredString(x, y, content)
-            elif alignment == 'left':
-                x = margins[3]  # Left margin
-                canvas.drawString(x, y, content)
-            elif alignment == 'right':
-                x = page_width - margins[1]  # Right margin
-                canvas.drawRightString(x, y, content)
-            else:
-                x = page_width / 2
-                canvas.drawCentredString(x, y, content)
-        else:
-            # Frame-relative positioning
-            if alignment == 'center':
-                x = self.width / 2
-                canvas.drawCentredString(x, y, content)
-            elif alignment == 'left':
-                x = 0
-                canvas.drawString(x, y, content)
-            elif alignment == 'right':
-                x = self.width
-                canvas.drawRightString(x, y, content)
-            else:
-                x = self.width / 2
-                canvas.drawCentredString(x, y, content)
+        # Draw the line across the full width
+        canvas.saveState()
+        canvas.setStrokeColor(line_color)
+        canvas.setLineWidth(line_width)
+        canvas.line(0, y, self.width, y)
+        canvas.restoreState()
     
     def _substitute_variables(self, text: str) -> str:
         """Substitute metadata variables in text."""
@@ -484,8 +573,18 @@ class PDFRenderer:
         if title_page_flowables:
             story.extend(title_page_flowables)
         
+        # Add copyright page if enabled
+        copyright_flowables = self._build_copyright_page()
+        if copyright_flowables:
+            story.extend(copyright_flowables)
+        
+        # Add table of contents if enabled
+        toc_flowables = self._build_toc_page()
+        if toc_flowables:
+            story.extend(toc_flowables)
+        
         # Add document title if present (and no title page)
-        elif self._metadata.get('title'):
+        elif not title_page_flowables and self._metadata.get('title'):
             title_style = self.style_manager.get_style('title')
             story.append(Paragraph(self._metadata['title'], title_style))
             story.append(Spacer(1, 20))
@@ -520,11 +619,131 @@ class PDFRenderer:
             metadata=self._metadata,
             style_manager=self.style_manager,
             parse_color=self._parse_color,
+            template_dir=str(self.style_manager.template_dir),
         )
         
         flowables.append(title_page)
         # NextPageTemplate must come before PageBreak to take effect
         flowables.append(NextPageTemplate('main'))
+        flowables.append(PageBreak())
+        
+        return flowables
+    
+    def _build_copyright_page(self) -> List:
+        """Build the copyright page flowables from copyright.md file."""
+        # Get copyright configuration
+        copyright_config = self.style_manager.get_copyright_config()
+        
+        if not copyright_config.get('enabled', True):
+            return []
+        
+        # Look for copyright.md file in the copyright folder
+        copyright_dir = self.style_manager.template_dir.parent / 'copyright'
+        copyright_file = copyright_dir / 'copyright.md'
+        
+        if not copyright_file.exists():
+            return []
+        
+        flowables = []
+        
+        # Read copyright content
+        try:
+            with open(copyright_file, 'r') as f:
+                copyright_content = f.read()
+        except Exception:
+            return []
+        
+        # Add spacer before copyright content
+        flowables.append(Spacer(1, 100))
+        
+        # Parse and render copyright content
+        # For now, render as paragraphs - each line becomes a paragraph
+        copyright_style = ParagraphStyle(
+            name='Copyright',
+            parent=self.style_manager.get_style('paragraph'),
+            fontSize=9,
+            textColor=self._parse_color('#333333'),
+            alignment=TA_CENTER,
+            spaceBefore=6,
+            spaceAfter=6,
+        )
+        
+        # Process content - substitute metadata variables
+        for line in copyright_content.strip().split('\n'):
+            line = line.strip()
+            if line:
+                # Substitute variables like {title}, {date}, etc.
+                for key, value in self._metadata.items():
+                    line = line.replace(f'{{{key}}}', str(value) if value else '')
+                
+                # Handle markdown-style bold/italic
+                line = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', line)
+                line = re.sub(r'\*(.+?)\*', r'<i>\1</i>', line)
+                
+                flowables.append(Paragraph(line, copyright_style))
+        
+        # Add page break after copyright
+        flowables.append(PageBreak())
+        
+        return flowables
+    
+    def _build_toc_page(self) -> List:
+        """Build the table of contents page flowables."""
+        structure_config = self.style_manager.get_structure_config()
+        
+        if not structure_config.get('table_of_contents', False):
+            return []
+        
+        flowables = []
+        
+        # Get TOC configuration
+        toc_config = self.style_manager.get_toc_config()
+        toc_depth = structure_config.get('toc_depth', 3)
+        
+        # Add TOC title with styling
+        toc_title_style = ParagraphStyle(
+            name='TOCTitle',
+            fontName='Helvetica-Bold',
+            fontSize=16,
+            textColor=self._parse_color(toc_config.get('title_color', '#000080')),
+            alignment=TA_LEFT,
+            spaceBefore=0,
+            spaceAfter=20,
+        )
+        
+        flowables.append(Paragraph('Table of Contents', toc_title_style))
+        
+        # Add horizontal rule under title
+        flowables.append(HRFlowable(
+            width="100%",
+            thickness=1.5,
+            color=self._parse_color('#000080'),
+            spaceBefore=0,
+            spaceAfter=15
+        ))
+        
+        # Create the actual TOC - will be populated by ReportLab document build
+        toc = TableOfContents()
+        
+        # Style the TOC levels
+        toc.levelStyles = []
+        for level in range(min(toc_depth, 4)):
+            indent = level * toc_config.get('indent_per_level', 20)
+            font_size = toc_config.get(f'level{level+1}_size', 12 - level)
+            font_name = 'Helvetica-Bold' if level == 0 else 'Helvetica'
+            
+            toc.levelStyles.append(
+                ParagraphStyle(
+                    name=f'TOCLevel{level+1}',
+                    fontName=font_name,
+                    fontSize=font_size,
+                    leftIndent=indent,
+                    spaceBefore=4 if level == 0 else 2,
+                    spaceAfter=2,
+                )
+            )
+        
+        flowables.append(toc)
         flowables.append(PageBreak())
         
         return flowables
@@ -562,9 +781,22 @@ class PDFRenderer:
         
         text = self._spans_to_html(element.content)
         
-        flowables = [
-            Paragraph(text, style),
-        ]
+        flowables = []
+        
+        # For H1 (chapters), apply chapter styling
+        if level == 1:
+            chapter_config = self.style_manager.get_chapter_config()
+            
+            # Start new page for chapters if configured
+            if chapter_config.get('start_new_page', True):
+                flowables.append(PageBreak())
+            
+            # Add top spacing for chapter-style layout
+            top_spacing = chapter_config.get('top_spacing', 72)  # 1 inch default
+            flowables.append(Spacer(1, top_spacing))
+        
+        # Add the heading paragraph
+        flowables.append(Paragraph(text, style))
         
         # Add border below for H1 if configured
         font_config = self.style_manager.get_font_config(style_name)
